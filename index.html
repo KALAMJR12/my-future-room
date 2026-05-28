@@ -6,7 +6,6 @@
   <title>Skate to the Future • Design Your Future</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -26,8 +25,8 @@
       position: relative;
       width: 100vw;
       height: 100vh;
-      max-width: 1200px;
-      max-height: 700px;
+      max-width: 1000px;
+      max-height: 600px;
       border-radius: 20px;
       overflow: hidden;
       box-shadow: 0 0 60px rgba(0, 150, 255, 0.3), 0 0 120px rgba(255, 200, 0, 0.2);
@@ -49,6 +48,8 @@
       justify-content: space-between;
       align-items: flex-start;
       padding: 20px;
+      flex-wrap: wrap;
+      gap: 15px;
     }
     .skill-badge {
       background: rgba(10, 20, 40, 0.85);
@@ -58,7 +59,7 @@
       padding: 12px 18px;
       color: white;
       font-weight: bold;
-      font-size: 13px;
+      font-size: 12px;
       letter-spacing: 0.5px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     }
@@ -66,15 +67,15 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      margin: 5px 0;
+      margin: 4px 0;
     }
     .skill-icon {
-      font-size: 18px;
-      width: 24px;
+      font-size: 16px;
+      width: 22px;
     }
     .skill-bar {
-      width: 80px;
-      height: 6px;
+      width: 70px;
+      height: 5px;
       background: #1e2a4a;
       border-radius: 10px;
       overflow: hidden;
@@ -88,10 +89,10 @@
     .level-indicator {
       background: #ffd700;
       color: #0a0a1a;
-      padding: 2px 10px;
+      padding: 2px 8px;
       border-radius: 12px;
-      font-size: 11px;
-      margin-left: 5px;
+      font-size: 10px;
+      margin-left: 3px;
     }
     .story-box {
       background: rgba(0, 0, 0, 0.75);
@@ -100,10 +101,10 @@
       border-radius: 30px;
       padding: 10px 24px;
       color: white;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 500;
       text-shadow: 0 2px 8px rgba(0,0,0,0.5);
-      max-width: 320px;
+      max-width: 300px;
       text-align: right;
       line-height: 1.4;
     }
@@ -115,7 +116,7 @@
       font-weight: bold;
       font-size: 13px;
       display: inline-block;
-      margin-top: 8px;
+      margin-top: 5px;
     }
     .controls-hint {
       position: absolute;
@@ -129,6 +130,7 @@
       font-size: 12px;
       letter-spacing: 1px;
       backdrop-filter: blur(10px);
+      white-space: nowrap;
     }
     button {
       pointer-events: auto;
@@ -148,6 +150,16 @@
       transform: scale(1.05);
       box-shadow: 0 6px 20px rgba(255, 200, 0, 0.7);
     }
+    @media (max-width: 700px) {
+      .hud-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .story-box {
+        max-width: 250px;
+        font-size: 12px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -155,564 +167,689 @@
 <div id="ui-layer">
   <div class="hud-top">
     <div class="skill-badge">
-      <div style="font-size: 14px; margin-bottom: 6px; color: #ffd700;">🌟 FUTURE SKILLS</div>
+      <div style="font-size: 13px; margin-bottom: 6px; color: #ffd700;">🌟 FUTURE SKILLS</div>
       <div class="skill-row">
         <span class="skill-icon">📚</span>
-        <span style="width: 65px;">Education</span>
-        <div class="skill-bar"><div class="skill-fill" id="edu-fill" style="width: 20%;"></div></div>
+        <span style="width: 60px;">Education</span>
+        <div class="skill-bar"><div class="skill-fill" id="edu-fill" style="width: 10%;"></div></div>
         <span class="level-indicator" id="edu-lvl">Lv.1</span>
       </div>
       <div class="skill-row">
         <span class="skill-icon">💻</span>
-        <span style="width: 65px;">Tech</span>
-        <div class="skill-bar"><div class="skill-fill" id="tech-fill" style="width: 20%;"></div></div>
+        <span style="width: 60px;">Tech</span>
+        <div class="skill-bar"><div class="skill-fill" id="tech-fill" style="width: 10%;"></div></div>
         <span class="level-indicator" id="tech-lvl">Lv.1</span>
       </div>
       <div class="skill-row">
         <span class="skill-icon">🎨</span>
-        <span style="width: 65px;">Creativity</span>
-        <div class="skill-bar"><div class="skill-fill" id="crea-fill" style="width: 20%;"></div></div>
+        <span style="width: 60px;">Creativity</span>
+        <div class="skill-bar"><div class="skill-fill" id="crea-fill" style="width: 10%;"></div></div>
         <span class="level-indicator" id="crea-lvl">Lv.1</span>
       </div>
       <div class="skill-row">
         <span class="skill-icon">❤️</span>
-        <span style="width: 65px;">Wellness</span>
-        <div class="skill-bar"><div class="skill-fill" id="well-fill" style="width: 20%;"></div></div>
+        <span style="width: 60px;">Wellness</span>
+        <div class="skill-bar"><div class="skill-fill" id="well-fill" style="width: 10%;"></div></div>
         <span class="level-indicator" id="well-lvl">Lv.1</span>
       </div>
-      <div style="margin-top: 8px; font-size: 11px; color: #ccc;">
-        🍎 Food: <span id="food-count">0</span> | 👕 Clothes: <span id="clothes-count">0</span>
+      <div style="margin-top: 6px; font-size: 10px; color: #ccc;">
+        🍎 <span id="food-count">0</span> | 👕 <span id="clothes-count">0</span>
       </div>
     </div>
-    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
       <div class="story-box" id="story-text">🛹 Skate through your future...</div>
-      <div class="speed-indicator">⚡ Speed: <span id="speed-display">5.2</span></div>
+      <div class="speed-indicator">⚡ Speed: <span id="speed-display">5.0</span></div>
       <button id="restart-btn">🔄 New Journey</button>
     </div>
   </div>
   <div class="controls-hint">
-    ⬅️ ➡️ Arrow Keys to steer | ⬆️ or SPACE to jump | Collect skills to build your future
+    ⬅️ ➡️ Steer | ⬆️ Jump | Collect skills for your future
   </div>
 </div>
 
 <script>
-  // ----- SKATE TO THE FUTURE : Edge Surf-inspired 3D perspective skating -----
-  const { Engine, World, Bodies, Body } = Matter;
+  // ===== SKATE TO THE FUTURE - EDGE SURF INSPIRED =====
+  const { Engine, World, Bodies, Body, Events } = Matter;
 
-  // Game state
   let engine, world;
   let player;
   let ground;
   let collectibles = [];
   let obstacles = [];
   
-  // Camera & world
+  // Camera & perspective
   let worldOffset = 0;
-  let cameraX = 0, cameraY = 0;
-  let targetCamX = 0, targetCamY = 0;
+  let cameraShake = 0;
   
-  // Player skills
-  let skills = {
-    education: 1, tech: 1, creativity: 1, wellness: 1
-  };
+  // Player state
+  let playerX = 400;
+  let playerY;
+  let playerVY = 0;
+  let currentLane = 1; // 0-3 lanes
+  let targetLaneX = 400;
+  let lanes = [250, 350, 450, 550];
+  
+  // Skills
+  let skills = { education: 1, tech: 1, creativity: 1, wellness: 1 };
   let food = 0, clothes = 0;
   let level = 1;
-  const maxSkillLevel = 10;
+  const MAX_SKILL = 10;
   
-  // Game mechanics
-  let gameSpeed = 5.5;
-  let baseSpeed = 5.5;
-  let lanes = [-120, -40, 40, 120]; // horizontal positions for obstacles/collectibles
-  let currentLane = 0; // player lane index (0-3)
+  // Game
+  let gameSpeed = 5;
+  let baseSpeed = 5;
+  let isJumping = false;
+  let jumpVelocity = 0;
+  const GRAVITY = 0.6;
+  const JUMP_FORCE = -12;
+  let groundY;
   
   // Controls
-  let leftPressed = false, rightPressed = false;
-  let jumpPressed = false;
-  let jumpCooldown = 0;
+  let keys = {};
   
   // Story
   let storyMessages = [
-    "🛹 Every skill collected shapes your destiny.",
-    "📚 Education opens doors to innovation.",
-    "💻 Tech skills accelerate your journey.",
-    "🎨 Creativity colors your path forward.",
-    "❤️ Wellness sustains your dreams."
+    "🛹 Skate into your future...",
+    "📚 Education builds your foundation",
+    "💻 Tech skills accelerate growth",
+    "🎨 Creativity shapes your path",
+    "❤️ Wellness sustains the journey",
+    "🌟 Every skill matters!",
+    "🚀 Level up your future!"
   ];
-  let currentStoryIndex = 0;
+  let storyIndex = 0;
+  let storyTimer = 0;
   
-  // Particle effects
+  // Particles
   let particles = [];
 
-  // ----- P5 SETUP -----
   function setup() {
     let canvas = createCanvas(1000, 600);
     canvas.parent('game-container');
     
-    // Matter.js
+    groundY = height - 60;
+    playerY = groundY - 80;
+    
+    // Initialize Matter.js
     engine = Engine.create();
     world = engine.world;
-    engine.gravity.y = 1.5;
+    engine.gravity.y = 0; // We handle gravity manually for player
     
     // Ground
-    ground = Bodies.rectangle(500, height - 30, 2000, 40, { isStatic: true, label: 'ground' });
+    ground = Bodies.rectangle(500, groundY + 30, 3000, 40, { 
+      isStatic: true, 
+      label: 'ground',
+      friction: 0.5
+    });
     World.add(world, ground);
     
-    // Player (skater)
-    createPlayer();
+    // Create player as a sensor body
+    player = Bodies.circle(playerX, playerY, 20, {
+      label: 'player',
+      friction: 0.1,
+      restitution: 0,
+      mass: 1
+    });
+    World.add(world, player);
+    Body.setInertia(player, Infinity);
     
     // Initial spawns
-    for (let i = 0; i < 8; i++) {
-      spawnCollectible(800 + i * 200);
+    for (let i = 0; i < 10; i++) {
+      spawnCollectible(800 + i * 180);
     }
-    for (let i = 0; i < 5; i++) {
-      spawnObstacle(900 + i * 250);
+    for (let i = 0; i < 6; i++) {
+      spawnObstacle(900 + i * 220);
     }
     
     updateUI();
   }
-  
-  function createPlayer() {
-    let x = 400, y = height - 120;
-    let board = Bodies.rectangle(x, y + 30, 55, 10, { label: 'player', mass: 1.5, friction: 0.3 });
-    let body = Bodies.circle(x, y - 5, 16, { label: 'playerBody', mass: 1 });
-    let head = Bodies.circle(x, y - 32, 11, { label: 'playerHead', mass: 0.6 });
-    
-    player = Body.create({
-      parts: [board, body, head],
-      mass: 3,
-      friction: 0.2,
-      restitution: 0.1,
-      label: 'player'
-    });
-    World.add(world, player);
-    Body.setInertia(player, Infinity);
-  }
-  
-  function spawnCollectible(xPos) {
-    let laneX = random(lanes);
-    let types = [
-      { type: 'education', icon: '📚', color: [70, 130, 220] },
-      { type: 'tech', icon: '💻', color: [0, 200, 255] },
-      { type: 'creativity', icon: '🎨', color: [255, 100, 180] },
-      { type: 'wellness', icon: '❤️', color: [255, 80, 80] },
-      { type: 'food', icon: '🍎', color: [255, 150, 50] },
-      { type: 'clothes', icon: '👕', color: [160, 120, 255] }
-    ];
-    let chosen = random(types);
-    let c = Bodies.circle(xPos, height - 110 + random(-20, 10), 18, {
-      isSensor: true,
-      label: 'collectible',
-      collectType: chosen.type,
-      icon: chosen.icon,
-      col: chosen.color,
-      laneX: laneX
-    });
-    World.add(world, c);
-    collectibles.push(c);
-  }
-  
-  function spawnObstacle(xPos) {
-    let laneX = random(lanes);
-    let o = Bodies.rectangle(xPos, height - 90, 28, 50, {
-      label: 'obstacle',
-      mass: 5,
-      friction: 0.5,
-      laneX: laneX
-    });
-    World.add(world, o);
-    obstacles.push(o);
-  }
-  
-  // ----- GAME LOOP -----
+
   function draw() {
-    background(15, 25, 45);
-    
-    // Update physics
+    // Update physics (only for collectibles/obstacles)
     Engine.update(engine, 1000 / 60);
     
-    // Player movement (lane-based steering like Edge Surf)
-    handlePlayerMovement();
+    // Handle input
+    handleInput();
     
-    // Camera follows player with 3D perspective
-    updateCamera();
+    // Update player physics
+    updatePlayer();
     
-    // Scroll world
-    worldOffset = player.position.x - 350;
+    // Update world scroll
+    worldOffset = playerX - 350;
+    
+    // Clear and draw
+    background(15, 25, 45);
     
     push();
-    translate(-worldOffset * 0.8, 0);
+    translate(-worldOffset * 0.7, 0);
     
-    // Draw 3D perspective background
-    drawPerspectiveWorld();
+    // Draw 3D perspective environment
+    drawSky();
+    drawCity();
+    drawRoad();
     
-    // Draw items
-    for (let c of collectibles) drawCollectible(c);
-    for (let o of obstacles) drawObstacle(o);
-    
-    // Draw player
-    drawPlayer3D();
+    // Draw all game objects
+    drawCollectibles();
+    drawObstacles();
+    drawPlayer();
     
     pop();
     
-    // UI overlay particles
+    // Draw particles (screen space)
     drawParticles();
     
-    // Collisions & cleanup
+    // Check collisions
     checkCollectibles();
     checkObstacles();
-    cleanUpOffscreen();
+    
+    // Cleanup and spawn
+    cleanUpObjects();
     
     // Update story
-    if (frameCount % 120 === 0) {
-      currentStoryIndex = (currentStoryIndex + 1) % storyMessages.length;
-      document.getElementById('story-text').innerText = storyMessages[currentStoryIndex];
+    storyTimer++;
+    if (storyTimer > 180) {
+      storyTimer = 0;
+      storyIndex = (storyIndex + 1) % storyMessages.length;
+      document.getElementById('story-text').innerText = storyMessages[storyIndex];
     }
     
-    // Speed display
+    // Update speed display
     document.getElementById('speed-display').innerText = gameSpeed.toFixed(1);
+    
+    // Camera shake decay
+    if (cameraShake > 0) cameraShake *= 0.9;
   }
-  
-  function updateCamera() {
-    targetCamX = (player.position.x - 400) * 0.3;
-    targetCamY = (player.position.y - height + 100) * 0.2;
-    cameraX = lerp(cameraX, targetCamX, 0.08);
-    cameraY = lerp(cameraY, targetCamY, 0.08);
-  }
-  
-  function handlePlayerMovement() {
-    // Lane steering
-    if (leftPressed && currentLane > 0) {
-      currentLane--;
-      leftPressed = false;
-      gsap.to(player.position, { x: 400 + lanes[currentLane], duration: 0.25, ease: "power2.out" });
+
+  function handleInput() {
+    // Lane switching
+    if (keys[LEFT_ARROW] || keys[65]) {
+      if (currentLane > 0) {
+        currentLane--;
+        keys[LEFT_ARROW] = false;
+        keys[65] = false;
+      }
     }
-    if (rightPressed && currentLane < lanes.length - 1) {
-      currentLane++;
-      rightPressed = false;
-      gsap.to(player.position, { x: 400 + lanes[currentLane], duration: 0.25, ease: "power2.out" });
+    if (keys[RIGHT_ARROW] || keys[68]) {
+      if (currentLane < lanes.length - 1) {
+        currentLane++;
+        keys[RIGHT_ARROW] = false;
+        keys[68] = false;
+      }
     }
+    
+    targetLaneX = lanes[currentLane];
+    playerX = lerp(playerX, targetLaneX, 0.15);
     
     // Jump
-    if (jumpPressed && jumpCooldown <= 0 && abs(player.velocity.y) < 0.5) {
-      Body.applyForce(player, player.position, { x: 0, y: -0.12 });
-      jumpCooldown = 25;
-      spawnJumpParticles();
-    }
-    if (jumpCooldown > 0) jumpCooldown--;
-    
-    // Forward momentum
-    Body.setVelocity(player, { x: gameSpeed, y: player.velocity.y });
-    
-    // Keep player in bounds vertically
-    if (player.position.y > height - 40) {
-      Body.setPosition(player, { x: player.position.x, y: height - 80 });
-      Body.setVelocity(player, { x: player.velocity.x, y: 0 });
+    if ((keys[UP_ARROW] || keys[32] || keys[87]) && !isJumping) {
+      isJumping = true;
+      jumpVelocity = JUMP_FORCE;
+      keys[UP_ARROW] = false;
+      keys[32] = false;
+      keys[87] = false;
+      createJumpParticles();
     }
   }
-  
-  function drawPerspectiveWorld() {
-    // Sky gradient
-    for (let i = 0; i < height; i++) {
-      let inter = map(i, 0, height, 0, 1);
-      stroke(lerpColor(color(20, 30, 60), color(40, 60, 100), inter));
-      line(0, i, width * 2, i);
+
+  function updatePlayer() {
+    // Gravity
+    if (isJumping) {
+      playerY += jumpVelocity;
+      jumpVelocity += GRAVITY;
+      
+      if (playerY >= groundY - 40) {
+        playerY = groundY - 40;
+        isJumping = false;
+        jumpVelocity = 0;
+        createLandParticles();
+      }
     }
     
-    // Futuristic buildings (parallax layers)
-    for (let layer = 0; layer < 3; layer++) {
-      let parallax = 0.3 + layer * 0.2;
-      let buildingColor = layer === 0 ? color(30, 40, 70) : layer === 1 ? color(40, 55, 90) : color(25, 35, 60);
+    // Update player body position
+    Body.setPosition(player, { x: playerX, y: playerY });
+    Body.setVelocity(player, { x: gameSpeed, y: 0 });
+    
+    // Keep collectibles/obstacles moving
+    for (let c of collectibles) {
+      Body.setVelocity(c, { x: -gameSpeed * 0.3, y: 0 });
+    }
+    for (let o of obstacles) {
+      Body.setVelocity(o, { x: -gameSpeed * 0.3, y: 0 });
+    }
+  }
+
+  function drawSky() {
+    // Gradient sky
+    for (let y = 0; y < height; y++) {
+      let inter = map(y, 0, height, 0, 1);
+      let c = lerpColor(color(20, 30, 50), color(60, 80, 120), inter);
+      stroke(c);
+      line(-200, y, width * 3, y);
+    }
+    
+    // Stars
+    fill(255, 255, 200);
+    noStroke();
+    for (let i = 0; i < 30; i++) {
+      let sx = (i * 137 + worldOffset * 0.1) % (width * 2);
+      let sy = (i * 89) % 200;
+      ellipse(sx, sy, 2, 2);
+    }
+  }
+
+  function drawCity() {
+    // Far buildings (parallax layer 1)
+    fill(25, 35, 60);
+    noStroke();
+    for (let i = -2; i < 20; i++) {
+      let bx = i * 180 + (worldOffset * 0.2) % 180;
+      let bh = 150 + (i % 3) * 60;
+      rect(bx, groundY - bh, 80, bh);
       
-      for (let i = -5; i < 30; i++) {
-        let bx = i * 150 + (worldOffset * parallax) % 150;
-        let bh = random(80, 180) * (1 - layer * 0.2);
-        let by = height - 60 - bh;
-        
-        fill(buildingColor);
-        noStroke();
-        rect(bx, by, 60, bh);
-        
-        // Windows
-        fill(255, 220, 100, 100 + layer * 30);
-        for (let wy = by + 10; wy < by + bh - 10; wy += 20) {
-          for (let wx = bx + 8; wx < bx + 52; wx += 15) {
-            rect(wx, wy, 5, 8);
-          }
+      // Windows
+      fill(255, 220, 100, 80);
+      for (let wy = groundY - bh + 15; wy < groundY - 10; wy += 25) {
+        for (let wx = bx + 10; wx < bx + 70; wx += 18) {
+          rect(wx, wy, 6, 10);
         }
       }
     }
     
-    // Road with perspective lines
-    fill(60, 70, 90);
-    rect(-500, height - 50, 3000, 60);
+    // Near buildings (parallax layer 2)
+    fill(35, 45, 75);
+    for (let i = -1; i < 15; i++) {
+      let bx = i * 220 + (worldOffset * 0.5) % 220;
+      let bh = 100 + (i % 4) * 40;
+      rect(bx, groundY - bh, 60, bh);
+      
+      fill(255, 200, 100, 100);
+      for (let wy = groundY - bh + 15; wy < groundY - 5; wy += 20) {
+        for (let wx = bx + 8; wx < bx + 52; wx += 15) {
+          rect(wx, wy, 5, 8);
+        }
+      }
+    }
+  }
+
+  function drawRoad() {
+    // Main road
+    fill(50, 55, 70);
+    rect(-300, groundY - 10, width * 4, 70);
+    
+    // Road edge
+    fill(70, 75, 90);
+    rect(-300, groundY - 15, width * 4, 8);
     
     // Lane markings
-    stroke(255, 215, 0, 150);
+    stroke(255, 215, 0, 120);
     strokeWeight(2);
     for (let i = -5; i < 40; i++) {
-      let lx = i * 80 + (worldOffset * 0.7) % 80;
-      line(lx, height - 25, lx + 30, height - 25);
+      let lx = i * 100 + (worldOffset * 0.6) % 100;
+      line(lx, groundY + 15, lx + 40, groundY + 15);
     }
     noStroke();
-  }
-  
-  function drawCollectible(c) {
-    push();
-    translate(c.position.x, c.position.y);
-    // Floating animation
-    let floatY = sin(frameCount * 0.1 + c.position.x) * 5;
-    translate(0, floatY);
     
-    // Glow
-    fill(c.col[0], c.col[1], c.col[2], 80);
-    ellipse(0, 0, 40, 40);
-    
-    // Item
-    fill(c.col[0], c.col[1], c.col[2]);
-    ellipse(0, 0, 30, 30);
-    fill(255);
-    textSize(18);
-    textAlign(CENTER, CENTER);
-    text(c.icon, 0, 0);
-    pop();
+    // Sidewalk
+    fill(60, 65, 80);
+    rect(-300, groundY - 20, width * 4, 10);
   }
-  
-  function drawObstacle(o) {
-    push();
-    translate(o.position.x, o.position.y);
-    fill(180, 60, 60);
-    rectMode(CENTER);
-    rect(0, 0, 26, 48, 8);
-    fill(220, 100, 100);
-    rect(0, -10, 20, 8);
-    fill(255);
-    textSize(16);
-    text('⚠️', 0, 5);
-    pop();
+
+  function drawCollectibles() {
+    for (let c of collectibles) {
+      push();
+      translate(c.position.x, c.position.y);
+      
+      // Float animation
+      let floatY = sin(frameCount * 0.08 + c.position.x) * 6;
+      
+      // Glow effect
+      fill(c.col[0], c.col[1], c.col[2], 60);
+      ellipse(0, floatY, 36, 36);
+      
+      // Main circle
+      fill(c.col[0], c.col[1], c.col[2]);
+      ellipse(0, floatY, 28, 28);
+      
+      // Icon
+      fill(255);
+      textSize(16);
+      textAlign(CENTER, CENTER);
+      text(c.icon, 0, floatY);
+      pop();
+    }
   }
-  
-  function drawPlayer3D() {
-    if (!player) return;
-    let px = player.position.x;
-    let py = player.position.y;
-    
+
+  function drawObstacles() {
+    for (let o of obstacles) {
+      push();
+      translate(o.position.x, o.position.y);
+      
+      // Warning sign
+      fill(200, 60, 60);
+      rectMode(CENTER);
+      rect(0, 0, 24, 45, 6);
+      
+      fill(240, 100, 100);
+      rect(0, -12, 18, 8, 3);
+      
+      fill(255);
+      textSize(14);
+      textAlign(CENTER, CENTER);
+      text('!', 0, 2);
+      pop();
+    }
+  }
+
+  function drawPlayer() {
     push();
-    translate(px, py);
+    translate(playerX, playerY);
     
     // Shadow
-    fill(0, 0, 0, 50);
-    ellipse(0, 32, 45, 12);
+    fill(0, 0, 0, 40);
+    ellipse(0, 38, 50, 10);
     
     // Skateboard
-    fill(200, 160, 100);
+    fill(180, 140, 100);
     rectMode(CENTER);
-    rect(0, 28, 52, 8, 15);
-    fill(60);
-    rect(0, 28, 48, 6, 12);
+    rect(0, 30, 55, 8, 12);
+    
+    // Board design
+    fill(220, 180, 120);
+    rect(0, 30, 48, 5, 10);
+    
     // Wheels
     fill(30);
-    ellipse(-20, 33, 9, 9);
-    ellipse(20, 33, 9, 9);
+    ellipse(-20, 35, 8, 8);
+    ellipse(20, 35, 8, 8);
+    fill(60);
+    ellipse(-20, 35, 4, 4);
+    ellipse(20, 35, 4, 4);
     
     // Legs
-    stroke(220, 180, 140);
+    stroke(220, 180, 150);
     strokeWeight(5);
-    line(-8, 22, -10, 5);
-    line(8, 22, 10, 5);
+    line(-8, 24, -10, 8);
+    line(8, 24, 10, 8);
+    noStroke();
+    
+    // Shoes
+    fill(50);
+    ellipse(-10, 28, 10, 5);
+    ellipse(10, 28, 10, 5);
     
     // Body
-    noStroke();
-    fill(60, 120, 200);
-    ellipse(0, -5, 22, 26);
+    fill(60, 130, 210);
+    ellipse(0, -2, 24, 28);
+    
+    // Jacket detail
+    fill(80, 150, 230);
+    rect(-8, -10, 16, 20, 4);
     
     // Arms
-    stroke(220, 180, 140);
+    stroke(220, 180, 150);
     strokeWeight(4);
-    line(-10, -8, -20, 10);
-    line(10, -8, 20, 10);
+    line(-11, -5, -22, 10);
+    line(11, -5, 22, 10);
+    noStroke();
+    
+    // Hands
+    fill(240, 200, 160);
+    ellipse(-22, 10, 6, 6);
+    ellipse(22, 10, 6, 6);
     
     // Head
-    noStroke();
     fill(255, 210, 170);
-    ellipse(0, -28, 22, 24);
+    ellipse(0, -28, 24, 26);
     
-    // Face
+    // Hair
+    fill(60, 40, 20);
+    arc(0, -35, 26, 14, PI, TWO_PI);
+    
+    // Eyes
     fill(30);
-    ellipse(-5, -30, 3, 4);
-    ellipse(5, -30, 3, 4);
+    ellipse(-6, -30, 4, 5);
+    ellipse(6, -30, 4, 5);
+    fill(255);
+    ellipse(-5, -31, 2, 2);
+    ellipse(7, -31, 2, 2);
+    
+    // Mouth
+    noFill();
+    stroke(180, 100, 80);
+    strokeWeight(1.5);
+    arc(0, -22, 8, 5, 0, PI);
+    noStroke();
     
     // Helmet
-    fill(255, 80, 60);
-    arc(0, -35, 24, 12, PI, TWO_PI);
+    fill(255, 70, 50);
+    arc(0, -36, 28, 14, PI, TWO_PI);
+    fill(255, 100, 80);
+    rect(-2, -42, 4, 4, 2);
     
     pop();
   }
-  
-  function spawnJumpParticles() {
-    for (let i = 0; i < 8; i++) {
+
+  function createJumpParticles() {
+    for (let i = 0; i < 10; i++) {
       particles.push({
-        x: player.position.x,
-        y: player.position.y + 20,
-        vx: random(-2, 2),
-        vy: random(-3, -1),
-        life: 20,
-        color: [255, 215, 0]
+        x: playerX - worldOffset * 0.7,
+        y: playerY + 30,
+        vx: random(-3, 3),
+        vy: random(-5, -2),
+        life: 25,
+        color: [255, 200, 50]
       });
     }
   }
-  
+
+  function createLandParticles() {
+    for (let i = 0; i < 6; i++) {
+      particles.push({
+        x: playerX - worldOffset * 0.7,
+        y: playerY + 35,
+        vx: random(-2, 2),
+        vy: random(-3, -1),
+        life: 15,
+        color: [200, 200, 200]
+      });
+    }
+  }
+
   function drawParticles() {
     for (let i = particles.length - 1; i >= 0; i--) {
       let p = particles[i];
-      fill(p.color[0], p.color[1], p.color[2], p.life * 10);
+      fill(p.color[0], p.color[1], p.color[2], p.life * 8);
       noStroke();
-      ellipse(p.x - worldOffset * 0.8, p.y + cameraY, 4);
+      ellipse(p.x, p.y, 5, 5);
       p.x += p.vx;
       p.y += p.vy;
       p.life--;
       if (p.life <= 0) particles.splice(i, 1);
     }
   }
-  
+
+  function spawnCollectible(xPos) {
+    let laneX = random(lanes);
+    let types = [
+      { type: 'education', icon: '📚', color: [65, 130, 220] },
+      { type: 'tech', icon: '💻', color: [0, 190, 240] },
+      { type: 'creativity', icon: '🎨', color: [240, 90, 160] },
+      { type: 'wellness', icon: '❤️', color: [240, 70, 70] },
+      { type: 'food', icon: '🍎', color: [240, 140, 50] },
+      { type: 'clothes', icon: '👕', color: [150, 110, 240] }
+    ];
+    let chosen = random(types);
+    
+    let c = Bodies.circle(xPos, groundY - 40 + random(-15, 5), 16, {
+      isSensor: true,
+      label: 'collectible',
+      collectType: chosen.type,
+      icon: chosen.icon,
+      col: chosen.color
+    });
+    World.add(world, c);
+    collectibles.push(c);
+  }
+
+  function spawnObstacle(xPos) {
+    let laneX = random(lanes);
+    let o = Bodies.rectangle(xPos, groundY - 30, 24, 45, {
+      label: 'obstacle',
+      isSensor: true
+    });
+    World.add(world, o);
+    obstacles.push(o);
+  }
+
   function checkCollectibles() {
     for (let i = collectibles.length - 1; i >= 0; i--) {
       let c = collectibles[i];
-      let dist = dist(player.position.x, player.position.y, c.position.x, c.position.y);
-      if (dist < 45) {
+      let d = dist(playerX, playerY, c.position.x, c.position.y);
+      if (d < 45) {
         collectItem(c);
         World.remove(world, c);
         collectibles.splice(i, 1);
-        spawnCollectible(player.position.x + random(600, 900));
       }
     }
   }
-  
+
   function collectItem(item) {
     let type = item.collectType;
-    if (type === 'education') skills.education = min(skills.education + 1, maxSkillLevel);
-    else if (type === 'tech') skills.tech = min(skills.tech + 1, maxSkillLevel);
-    else if (type === 'creativity') skills.creativity = min(skills.creativity + 1, maxSkillLevel);
-    else if (type === 'wellness') skills.wellness = min(skills.wellness + 1, maxSkillLevel);
+    if (type === 'education') skills.education = min(skills.education + 1, MAX_SKILL);
+    else if (type === 'tech') skills.tech = min(skills.tech + 1, MAX_SKILL);
+    else if (type === 'creativity') skills.creativity = min(skills.creativity + 1, MAX_SKILL);
+    else if (type === 'wellness') skills.wellness = min(skills.wellness + 1, MAX_SKILL);
     else if (type === 'food') food++;
     else if (type === 'clothes') clothes++;
     
-    // Update speed based on skills
+    // Update speed
     let total = skills.education + skills.tech + skills.creativity + skills.wellness;
-    gameSpeed = baseSpeed + (total - 4) * 0.4;
+    gameSpeed = baseSpeed + (total - 4) * 0.5;
     
     // Level up
     let newLevel = floor(total / 5) + 1;
     if (newLevel > level) {
       level = newLevel;
       document.getElementById('story-text').innerText = `🚀 LEVEL ${level}! Your future expands!`;
+      storyTimer = 0;
     }
     
     updateUI();
-    spawnCollectible(player.position.x + random(500, 800));
   }
-  
+
   function checkObstacles() {
     for (let o of obstacles) {
-      let dist = dist(player.position.x, player.position.y, o.position.x, o.position.y);
-      if (dist < 40) {
+      let d = dist(playerX, playerY, o.position.x, o.position.y);
+      if (d < 35) {
         // Penalty
-        if (skills.education > 1) skills.education--;
-        else if (skills.tech > 1) skills.tech--;
-        else if (skills.creativity > 1) skills.creativity--;
-        else if (skills.wellness > 1) skills.wellness--;
+        let skillsArray = ['education', 'tech', 'creativity', 'wellness'];
+        for (let s of skillsArray) {
+          if (skills[s] > 1) {
+            skills[s]--;
+            break;
+          }
+        }
         
-        document.getElementById('story-text').innerText = "⚠️ Obstacle! Learn and keep going.";
-        Body.setVelocity(player, { x: -1, y: -3 });
+        cameraShake = 10;
+        document.getElementById('story-text').innerText = "⚠️ Setback! Keep pushing forward!";
+        storyTimer = 0;
         updateUI();
+        
+        // Push obstacle away
+        Body.setPosition(o, { x: o.position.x + 100, y: o.position.y });
         break;
       }
     }
   }
-  
-  function cleanUpOffscreen() {
+
+  function cleanUpObjects() {
+    // Remove off-screen objects
     for (let i = collectibles.length - 1; i >= 0; i--) {
-      if (collectibles[i].position.x < player.position.x - 500) {
+      if (collectibles[i].position.x < playerX - 500) {
         World.remove(world, collectibles[i]);
         collectibles.splice(i, 1);
       }
     }
     for (let i = obstacles.length - 1; i >= 0; i--) {
-      if (obstacles[i].position.x < player.position.x - 500) {
+      if (obstacles[i].position.x < playerX - 500) {
         World.remove(world, obstacles[i]);
         obstacles.splice(i, 1);
       }
     }
-    if (collectibles.length < 8) spawnCollectible(player.position.x + random(700, 1100));
-    if (obstacles.length < 5) spawnObstacle(player.position.x + random(800, 1200));
+    
+    // Spawn new objects
+    if (collectibles.length < 10) {
+      spawnCollectible(playerX + 800 + random(0, 300));
+    }
+    if (obstacles.length < 6) {
+      spawnObstacle(playerX + 900 + random(0, 400));
+    }
   }
-  
+
   function updateUI() {
-    document.getElementById('edu-fill').style.width = (skills.education / maxSkillLevel * 100) + '%';
-    document.getElementById('tech-fill').style.width = (skills.tech / maxSkillLevel * 100) + '%';
-    document.getElementById('crea-fill').style.width = (skills.creativity / maxSkillLevel * 100) + '%';
-    document.getElementById('well-fill').style.width = (skills.wellness / maxSkillLevel * 100) + '%';
+    document.getElementById('edu-fill').style.width = (skills.education / MAX_SKILL * 100) + '%';
+    document.getElementById('tech-fill').style.width = (skills.tech / MAX_SKILL * 100) + '%';
+    document.getElementById('crea-fill').style.width = (skills.creativity / MAX_SKILL * 100) + '%';
+    document.getElementById('well-fill').style.width = (skills.wellness / MAX_SKILL * 100) + '%';
+    
     document.getElementById('edu-lvl').innerText = 'Lv.' + skills.education;
     document.getElementById('tech-lvl').innerText = 'Lv.' + skills.tech;
     document.getElementById('crea-lvl').innerText = 'Lv.' + skills.creativity;
     document.getElementById('well-lvl').innerText = 'Lv.' + skills.wellness;
+    
     document.getElementById('food-count').innerText = food;
     document.getElementById('clothes-count').innerText = clothes;
   }
-  
-  // ----- INPUT -----
+
   function keyPressed() {
-    if (keyCode === LEFT_ARROW || keyCode === 65) leftPressed = true;
-    if (keyCode === RIGHT_ARROW || keyCode === 68) rightPressed = true;
-    if (keyCode === UP_ARROW || keyCode === 32 || keyCode === 87) {
-      jumpPressed = true;
-      return false;
-    }
+    keys[keyCode] = true;
     return false;
   }
-  
+
   function keyReleased() {
-    if (keyCode === LEFT_ARROW || keyCode === 65) leftPressed = false;
-    if (keyCode === RIGHT_ARROW || keyCode === 68) rightPressed = false;
-    if (keyCode === UP_ARROW || keyCode === 32 || keyCode === 87) jumpPressed = false;
+    keys[keyCode] = false;
   }
-  
+
   function mousePressed() {
-    jumpPressed = true;
+    if (!isJumping) {
+      isJumping = true;
+      jumpVelocity = JUMP_FORCE;
+      createJumpParticles();
+    }
   }
-  
-  function mouseReleased() {
-    jumpPressed = false;
-  }
-  
+
   function restartGame() {
     skills = { education: 1, tech: 1, creativity: 1, wellness: 1 };
-    food = 0; clothes = 0; level = 1;
+    food = 0;
+    clothes = 0;
+    level = 1;
     gameSpeed = baseSpeed;
-    currentLane = 0;
+    currentLane = 1;
+    playerX = lanes[1];
+    playerY = groundY - 40;
+    isJumping = false;
+    jumpVelocity = 0;
+    worldOffset = 0;
     
+    // Clear objects
     for (let c of collectibles) World.remove(world, c);
     for (let o of obstacles) World.remove(world, o);
-    collectibles = []; obstacles = [];
+    collectibles = [];
+    obstacles = [];
     
-    Body.setPosition(player, { x: 400, y: height - 120 });
-    Body.setVelocity(player, { x: 0, y: 0 });
-    
-    for (let i = 0; i < 8; i++) spawnCollectible(800 + i * 200);
-    for (let i = 0; i < 5; i++) spawnObstacle(900 + i * 250);
+    // Respawn
+    for (let i = 0; i < 10; i++) spawnCollectible(800 + i * 180);
+    for (let i = 0; i < 6; i++) spawnObstacle(900 + i * 220);
     
     document.getElementById('story-text').innerText = "🛹 New journey! Design your future.";
     updateUI();
   }
-  
+
   document.getElementById('restart-btn').addEventListener('click', restartGame);
-  window.keyPressed = keyPressed;
-  window.keyReleased = keyReleased;
-  window.mousePressed = mousePressed;
-  window.mouseReleased = mouseReleased;
-  
+
   // Prevent default scrolling
   window.addEventListener('keydown', function(e) {
-    if ([32, 37, 38, 39, 40, 65, 68, 87].includes(e.keyCode)) {
+    if ([32, 37, 38, 39, 40].includes(e.keyCode)) {
       e.preventDefault();
     }
   }, false);
