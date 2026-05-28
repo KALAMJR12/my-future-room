@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Skate to the Future • Design Your Future</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #0a0a1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      overflow: hidden;
+    }
+    .game-wrapper {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      max-width: 1200px;
+      max-height: 700px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(0, 150, 255, 0.3), 0 0 120px rgba(255, 200, 0, 0.2);
+    }
+    canvas {
+      display: block;
+    }
+    #ui-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .hud-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px;
+    }
+    .skill-badge {
+      background: rgba(10, 20, 40, 0.85);
+      backdrop-filter: blur(15px);
+      border: 2px solid rgba(255, 215, 0, 0.6);
+      border-radius: 20px;
+      padding: 12px 18px;
+      color: white;
+      font-weight: bold;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+    .skill-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 5px 0;
+    }
+    .skill-icon {
+      font-size: 18px;
+      width: 24px;
+    }
+    .skill-bar {
+      width: 80px;
+      height: 6px;
+      background: #1e2a4a;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .skill-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ffd700, #ff8c00);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+    .level-indicator {
+      background: #ffd700;
+      color: #0a0a1a;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      margin-left: 5px;
+    }
+    .story-box {
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 30px;
+      padding: 10px 24px;
+      color: white;
+      font-size: 15px;
+      font-weight: 500;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+      max-width: 320px;
+      text-align: right;
+      line-height: 1.4;
+    }
+    .speed-indicator {
+      background: rgba(255, 100, 50, 0.9);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 13px;
+      display: inline-block;
+      margin-top: 8px;
+    }
+    .controls-hint {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: #ccc;
+      padding: 8px 20px;
+      border-radius: 25px;
+      font-size: 12px;
+      letter-spacing: 1px;
+      backdrop-filter: blur(10px);
+    }
+    button {
+      pointer-events: auto;
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      border: none;
+      color: #0a0a1a;
+      font-weight: bold;
+      padding: 10px 22px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.2s;
+      box-shadow: 0 4px 15px rgba(255, 200, 0, 0.4);
+      margin-top: 8px;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(255, 200, 0, 0.7);
+    }
+  </style>
+</head>
+<body>
+<div class="game-wrapper" id="game-container"></div>
+<div id="ui-layer">
+  <div class="hud-top">
+    <div class="skill-badge">
+      <div style="font-size: 14px; margin-bottom: 6px; color: #ffd700;">🌟 FUTURE SKILLS</div>
+      <div class="skill-row">
+        <span class="skill-icon">📚</span>
+        <span style="width: 65px;">Education</span>
+        <div class="skill-bar"><div class="skill-fill" id="edu-fill" style="width: 20%;"></div></div>
+        <span class="level-indicator" id="edu-lvl">Lv.1</span>
+      </div>
+      <div class="skill-row">
+        <span class="skill-icon">💻</span>
+        <span style="width: 65px;">Tech</span>
+        <div class="skill-bar"><div class="skill-fill" id="tech-fill" style="width: 20%;"></div></div>
+        <span class="level-indicator" id="tech-lvl">Lv.1</span>
+      </div>
+      <div class="skill-row">
+        <span class="skill-icon">🎨</span>
+        <span style="width: 65px;">Creativity</span>
+        <div class="skill-bar"><div class="skill-fill" id="crea-fill" style="width: 20%;"></div></div>
+        <span class="level-indicator" id="crea-lvl">Lv.1</span>
+      </div>
+      <div class="skill-row">
+        <span class="skill-icon">❤️</span>
+        <span style="width: 65px;">Wellness</span>
+        <div class="skill-bar"><div class="skill-fill" id="well-fill" style="width: 20%;"></div></div>
+        <span class="level-indicator" id="well-lvl">Lv.1</span>
+      </div>
+      <div style="margin-top: 8px; font-size: 11px; color: #ccc;">
+        🍎 Food: <span id="food-count">0</span> | 👕 Clothes: <span id="clothes-count">0</span>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+      <div class="story-box" id="story-text">🛹 Skate through your future...</div>
+      <div class="speed-indicator">⚡ Speed: <span id="speed-display">5.2</span></div>
+      <button id="restart-btn">🔄 New Journey</button>
+    </div>
+  </div>
+  <div class="controls-hint">
+    ⬅️ ➡️ Arrow Keys to steer | ⬆️ or SPACE to jump | Collect skills to build your future
+  </div>
+</div>
+
+<script>
+  // ----- SKATE TO THE FUTURE : Edge Surf-inspired 3D perspective skating -----
+  const { Engine, World, Bodies, Body } = Matter;
+
+  // Game state
+  let engine, world;
+  let player;
+  let ground;
+  let collectibles = [];
+  let obstacles = [];
+  
+  // Camera & world
+  let worldOffset = 0;
+  let cameraX = 0, cameraY = 0;
+  let targetCamX = 0, targetCamY = 0;
+  
+  // Player skills
+  let skills = {
+    education: 1, tech: 1, creativity: 1, wellness: 1
+  };
+  let food = 0, clothes = 0;
+  let level = 1;
+  const maxSkillLevel = 10;
+  
+  // Game mechanics
+  let gameSpeed = 5.5;
+  let baseSpeed = 5.5;
+  let lanes = [-120, -40, 40, 120]; // horizontal positions for obstacles/collectibles
+  let currentLane = 0; // player lane index (0-3)
+  
+  // Controls
+  let leftPressed = false, rightPressed = false;
+  let jumpPressed = false;
+  let jumpCooldown = 0;
+  
+  // Story
+  let storyMessages = [
+    "🛹 Every skill collected shapes your destiny.",
+    "📚 Education opens doors to innovation.",
+    "💻 Tech skills accelerate your journey.",
+    "🎨 Creativity colors your path forward.",
+    "❤️ Wellness sustains your dreams."
+  ];
+  let currentStoryIndex = 0;
+  
+  // Particle effects
+  let particles = [];
+
+  // ----- P5 SETUP -----
+  function setup() {
+    let canvas = createCanvas(1000, 600);
+    canvas.parent('game-container');
+    
+    // Matter.js
+    engine = Engine.create();
+    world = engine.world;
+    engine.gravity.y = 1.5;
+    
+    // Ground
+    ground = Bodies.rectangle(500, height - 30, 2000, 40, { isStatic: true, label: 'ground' });
+    World.add(world, ground);
+    
+    // Player (skater)
+    createPlayer();
+    
+    // Initial spawns
+    for (let i = 0; i < 8; i++) {
+      spawnCollectible(800 + i * 200);
+    }
+    for (let i = 0; i < 5; i++) {
+      spawnObstacle(900 + i * 250);
+    }
+    
+    updateUI();
+  }
+  
+  function createPlayer() {
+    let x = 400, y = height - 120;
+    let board = Bodies.rectangle(x, y + 30, 55, 10, { label: 'player', mass: 1.5, friction: 0.3 });
+    let body = Bodies.circle(x, y - 5, 16, { label: 'playerBody', mass: 1 });
+    let head = Bodies.circle(x, y - 32, 11, { label: 'playerHead', mass: 0.6 });
+    
+    player = Body.create({
+      parts: [board, body, head],
+      mass: 3,
+      friction: 0.2,
+      restitution: 0.1,
+      label: 'player'
+    });
+    World.add(world, player);
+    Body.setInertia(player, Infinity);
+  }
+  
+  function spawnCollectible(xPos) {
+    let laneX = random(lanes);
+    let types = [
+      { type: 'education', icon: '📚', color: [70, 130, 220] },
+      { type: 'tech', icon: '💻', color: [0, 200, 255] },
+      { type: 'creativity', icon: '🎨', color: [255, 100, 180] },
+      { type: 'wellness', icon: '❤️', color: [255, 80, 80] },
+      { type: 'food', icon: '🍎', color: [255, 150, 50] },
+      { type: 'clothes', icon: '👕', color: [160, 120, 255] }
+    ];
+    let chosen = random(types);
+    let c = Bodies.circle(xPos, height - 110 + random(-20, 10), 18, {
+      isSensor: true,
+      label: 'collectible',
+      collectType: chosen.type,
+      icon: chosen.icon,
+      col: chosen.color,
+      laneX: laneX
+    });
+    World.add(world, c);
+    collectibles.push(c);
+  }
+  
+  function spawnObstacle(xPos) {
+    let laneX = random(lanes);
+    let o = Bodies.rectangle(xPos, height - 90, 28, 50, {
+      label: 'obstacle',
+      mass: 5,
+      friction: 0.5,
+      laneX: laneX
+    });
+    World.add(world, o);
+    obstacles.push(o);
+  }
+  
+  // ----- GAME LOOP -----
+  function draw() {
+    background(15, 25, 45);
+    
+    // Update physics
+    Engine.update(engine, 1000 / 60);
+    
+    // Player movement (lane-based steering like Edge Surf)
+    handlePlayerMovement();
+    
+    // Camera follows player with 3D perspective
+    updateCamera();
+    
+    // Scroll world
+    worldOffset = player.position.x - 350;
+    
+    push();
+    translate(-worldOffset * 0.8, 0);
+    
+    // Draw 3D perspective background
+    drawPerspectiveWorld();
+    
+    // Draw items
+    for (let c of collectibles) drawCollectible(c);
+    for (let o of obstacles) drawObstacle(o);
+    
+    // Draw player
+    drawPlayer3D();
+    
+    pop();
+    
+    // UI overlay particles
+    drawParticles();
+    
+    // Collisions & cleanup
+    checkCollectibles();
+    checkObstacles();
+    cleanUpOffscreen();
+    
+    // Update story
+    if (frameCount % 120 === 0) {
+      currentStoryIndex = (currentStoryIndex + 1) % storyMessages.length;
+      document.getElementById('story-text').innerText = storyMessages[currentStoryIndex];
+    }
+    
+    // Speed display
+    document.getElementById('speed-display').innerText = gameSpeed.toFixed(1);
+  }
+  
+  function updateCamera() {
+    targetCamX = (player.position.x - 400) * 0.3;
+    targetCamY = (player.position.y - height + 100) * 0.2;
+    cameraX = lerp(cameraX, targetCamX, 0.08);
+    cameraY = lerp(cameraY, targetCamY, 0.08);
+  }
+  
+  function handlePlayerMovement() {
+    // Lane steering
+    if (leftPressed && currentLane > 0) {
+      currentLane--;
+      leftPressed = false;
+      gsap.to(player.position, { x: 400 + lanes[currentLane], duration: 0.25, ease: "power2.out" });
+    }
+    if (rightPressed && currentLane < lanes.length - 1) {
+      currentLane++;
+      rightPressed = false;
+      gsap.to(player.position, { x: 400 + lanes[currentLane], duration: 0.25, ease: "power2.out" });
+    }
+    
+    // Jump
+    if (jumpPressed && jumpCooldown <= 0 && abs(player.velocity.y) < 0.5) {
+      Body.applyForce(player, player.position, { x: 0, y: -0.12 });
+      jumpCooldown = 25;
+      spawnJumpParticles();
+    }
+    if (jumpCooldown > 0) jumpCooldown--;
+    
+    // Forward momentum
+    Body.setVelocity(player, { x: gameSpeed, y: player.velocity.y });
+    
+    // Keep player in bounds vertically
+    if (player.position.y > height - 40) {
+      Body.setPosition(player, { x: player.position.x, y: height - 80 });
+      Body.setVelocity(player, { x: player.velocity.x, y: 0 });
+    }
+  }
+  
+  function drawPerspectiveWorld() {
+    // Sky gradient
+    for (let i = 0; i < height; i++) {
+      let inter = map(i, 0, height, 0, 1);
+      stroke(lerpColor(color(20, 30, 60), color(40, 60, 100), inter));
+      line(0, i, width * 2, i);
+    }
+    
+    // Futuristic buildings (parallax layers)
+    for (let layer = 0; layer < 3; layer++) {
+      let parallax = 0.3 + layer * 0.2;
+      let buildingColor = layer === 0 ? color(30, 40, 70) : layer === 1 ? color(40, 55, 90) : color(25, 35, 60);
+      
+      for (let i = -5; i < 30; i++) {
+        let bx = i * 150 + (worldOffset * parallax) % 150;
+        let bh = random(80, 180) * (1 - layer * 0.2);
+        let by = height - 60 - bh;
+        
+        fill(buildingColor);
+        noStroke();
+        rect(bx, by, 60, bh);
+        
+        // Windows
+        fill(255, 220, 100, 100 + layer * 30);
+        for (let wy = by + 10; wy < by + bh - 10; wy += 20) {
+          for (let wx = bx + 8; wx < bx + 52; wx += 15) {
+            rect(wx, wy, 5, 8);
+          }
+        }
+      }
+    }
+    
+    // Road with perspective lines
+    fill(60, 70, 90);
+    rect(-500, height - 50, 3000, 60);
+    
+    // Lane markings
+    stroke(255, 215, 0, 150);
+    strokeWeight(2);
+    for (let i = -5; i < 40; i++) {
+      let lx = i * 80 + (worldOffset * 0.7) % 80;
+      line(lx, height - 25, lx + 30, height - 25);
+    }
+    noStroke();
+  }
+  
+  function drawCollectible(c) {
+    push();
+    translate(c.position.x, c.position.y);
+    // Floating animation
+    let floatY = sin(frameCount * 0.1 + c.position.x) * 5;
+    translate(0, floatY);
+    
+    // Glow
+    fill(c.col[0], c.col[1], c.col[2], 80);
+    ellipse(0, 0, 40, 40);
+    
+    // Item
+    fill(c.col[0], c.col[1], c.col[2]);
+    ellipse(0, 0, 30, 30);
+    fill(255);
+    textSize(18);
+    textAlign(CENTER, CENTER);
+    text(c.icon, 0, 0);
+    pop();
+  }
+  
+  function drawObstacle(o) {
+    push();
+    translate(o.position.x, o.position.y);
+    fill(180, 60, 60);
+    rectMode(CENTER);
+    rect(0, 0, 26, 48, 8);
+    fill(220, 100, 100);
+    rect(0, -10, 20, 8);
+    fill(255);
+    textSize(16);
+    text('⚠️', 0, 5);
+    pop();
+  }
+  
+  function drawPlayer3D() {
+    if (!player) return;
+    let px = player.position.x;
+    let py = player.position.y;
+    
+    push();
+    translate(px, py);
+    
+    // Shadow
+    fill(0, 0, 0, 50);
+    ellipse(0, 32, 45, 12);
+    
+    // Skateboard
+    fill(200, 160, 100);
+    rectMode(CENTER);
+    rect(0, 28, 52, 8, 15);
+    fill(60);
+    rect(0, 28, 48, 6, 12);
+    // Wheels
+    fill(30);
+    ellipse(-20, 33, 9, 9);
+    ellipse(20, 33, 9, 9);
+    
+    // Legs
+    stroke(220, 180, 140);
+    strokeWeight(5);
+    line(-8, 22, -10, 5);
+    line(8, 22, 10, 5);
+    
+    // Body
+    noStroke();
+    fill(60, 120, 200);
+    ellipse(0, -5, 22, 26);
+    
+    // Arms
+    stroke(220, 180, 140);
+    strokeWeight(4);
+    line(-10, -8, -20, 10);
+    line(10, -8, 20, 10);
+    
+    // Head
+    noStroke();
+    fill(255, 210, 170);
+    ellipse(0, -28, 22, 24);
+    
+    // Face
+    fill(30);
+    ellipse(-5, -30, 3, 4);
+    ellipse(5, -30, 3, 4);
+    
+    // Helmet
+    fill(255, 80, 60);
+    arc(0, -35, 24, 12, PI, TWO_PI);
+    
+    pop();
+  }
+  
+  function spawnJumpParticles() {
+    for (let i = 0; i < 8; i++) {
+      particles.push({
+        x: player.position.x,
+        y: player.position.y + 20,
+        vx: random(-2, 2),
+        vy: random(-3, -1),
+        life: 20,
+        color: [255, 215, 0]
+      });
+    }
+  }
+  
+  function drawParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      let p = particles[i];
+      fill(p.color[0], p.color[1], p.color[2], p.life * 10);
+      noStroke();
+      ellipse(p.x - worldOffset * 0.8, p.y + cameraY, 4);
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life--;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+  
+  function checkCollectibles() {
+    for (let i = collectibles.length - 1; i >= 0; i--) {
+      let c = collectibles[i];
+      let dist = dist(player.position.x, player.position.y, c.position.x, c.position.y);
+      if (dist < 45) {
+        collectItem(c);
+        World.remove(world, c);
+        collectibles.splice(i, 1);
+        spawnCollectible(player.position.x + random(600, 900));
+      }
+    }
+  }
+  
+  function collectItem(item) {
+    let type = item.collectType;
+    if (type === 'education') skills.education = min(skills.education + 1, maxSkillLevel);
+    else if (type === 'tech') skills.tech = min(skills.tech + 1, maxSkillLevel);
+    else if (type === 'creativity') skills.creativity = min(skills.creativity + 1, maxSkillLevel);
+    else if (type === 'wellness') skills.wellness = min(skills.wellness + 1, maxSkillLevel);
+    else if (type === 'food') food++;
+    else if (type === 'clothes') clothes++;
+    
+    // Update speed based on skills
+    let total = skills.education + skills.tech + skills.creativity + skills.wellness;
+    gameSpeed = baseSpeed + (total - 4) * 0.4;
+    
+    // Level up
+    let newLevel = floor(total / 5) + 1;
+    if (newLevel > level) {
+      level = newLevel;
+      document.getElementById('story-text').innerText = `🚀 LEVEL ${level}! Your future expands!`;
+    }
+    
+    updateUI();
+    spawnCollectible(player.position.x + random(500, 800));
+  }
+  
+  function checkObstacles() {
+    for (let o of obstacles) {
+      let dist = dist(player.position.x, player.position.y, o.position.x, o.position.y);
+      if (dist < 40) {
+        // Penalty
+        if (skills.education > 1) skills.education--;
+        else if (skills.tech > 1) skills.tech--;
+        else if (skills.creativity > 1) skills.creativity--;
+        else if (skills.wellness > 1) skills.wellness--;
+        
+        document.getElementById('story-text').innerText = "⚠️ Obstacle! Learn and keep going.";
+        Body.setVelocity(player, { x: -1, y: -3 });
+        updateUI();
+        break;
+      }
+    }
+  }
+  
+  function cleanUpOffscreen() {
+    for (let i = collectibles.length - 1; i >= 0; i--) {
+      if (collectibles[i].position.x < player.position.x - 500) {
+        World.remove(world, collectibles[i]);
+        collectibles.splice(i, 1);
+      }
+    }
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      if (obstacles[i].position.x < player.position.x - 500) {
+        World.remove(world, obstacles[i]);
+        obstacles.splice(i, 1);
+      }
+    }
+    if (collectibles.length < 8) spawnCollectible(player.position.x + random(700, 1100));
+    if (obstacles.length < 5) spawnObstacle(player.position.x + random(800, 1200));
+  }
+  
+  function updateUI() {
+    document.getElementById('edu-fill').style.width = (skills.education / maxSkillLevel * 100) + '%';
+    document.getElementById('tech-fill').style.width = (skills.tech / maxSkillLevel * 100) + '%';
+    document.getElementById('crea-fill').style.width = (skills.creativity / maxSkillLevel * 100) + '%';
+    document.getElementById('well-fill').style.width = (skills.wellness / maxSkillLevel * 100) + '%';
+    document.getElementById('edu-lvl').innerText = 'Lv.' + skills.education;
+    document.getElementById('tech-lvl').innerText = 'Lv.' + skills.tech;
+    document.getElementById('crea-lvl').innerText = 'Lv.' + skills.creativity;
+    document.getElementById('well-lvl').innerText = 'Lv.' + skills.wellness;
+    document.getElementById('food-count').innerText = food;
+    document.getElementById('clothes-count').innerText = clothes;
+  }
+  
+  // ----- INPUT -----
+  function keyPressed() {
+    if (keyCode === LEFT_ARROW || keyCode === 65) leftPressed = true;
+    if (keyCode === RIGHT_ARROW || keyCode === 68) rightPressed = true;
+    if (keyCode === UP_ARROW || keyCode === 32 || keyCode === 87) {
+      jumpPressed = true;
+      return false;
+    }
+    return false;
+  }
+  
+  function keyReleased() {
+    if (keyCode === LEFT_ARROW || keyCode === 65) leftPressed = false;
+    if (keyCode === RIGHT_ARROW || keyCode === 68) rightPressed = false;
+    if (keyCode === UP_ARROW || keyCode === 32 || keyCode === 87) jumpPressed = false;
+  }
+  
+  function mousePressed() {
+    jumpPressed = true;
+  }
+  
+  function mouseReleased() {
+    jumpPressed = false;
+  }
+  
+  function restartGame() {
+    skills = { education: 1, tech: 1, creativity: 1, wellness: 1 };
+    food = 0; clothes = 0; level = 1;
+    gameSpeed = baseSpeed;
+    currentLane = 0;
+    
+    for (let c of collectibles) World.remove(world, c);
+    for (let o of obstacles) World.remove(world, o);
+    collectibles = []; obstacles = [];
+    
+    Body.setPosition(player, { x: 400, y: height - 120 });
+    Body.setVelocity(player, { x: 0, y: 0 });
+    
+    for (let i = 0; i < 8; i++) spawnCollectible(800 + i * 200);
+    for (let i = 0; i < 5; i++) spawnObstacle(900 + i * 250);
+    
+    document.getElementById('story-text').innerText = "🛹 New journey! Design your future.";
+    updateUI();
+  }
+  
+  document.getElementById('restart-btn').addEventListener('click', restartGame);
+  window.keyPressed = keyPressed;
+  window.keyReleased = keyReleased;
+  window.mousePressed = mousePressed;
+  window.mouseReleased = mouseReleased;
+  
+  // Prevent default scrolling
+  window.addEventListener('keydown', function(e) {
+    if ([32, 37, 38, 39, 40, 65, 68, 87].includes(e.keyCode)) {
+      e.preventDefault();
+    }
+  }, false);
+</script>
+</body>
+</html>
