@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>My Future Room • Design Your Future</title>
   
-  <!-- ============================================ -->
+
   <!-- CSS STYLES                                    -->
-  <!-- ============================================ -->
+
   <style>
     * {
       margin: 0;
@@ -51,13 +51,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   
-  <!-- ============================================ -->
+ 
   <!-- JAVASCRIPT GAME LOGIC                         -->
-  <!-- ============================================ -->
+
   <script>
-    // =============================================
+
     // SECTION 1: AUDIO SYSTEM
-    // =============================================
+
     const AudioSystem = {
       ctx: null,
       enabled: true,
@@ -102,9 +102,9 @@
       toggle() { this.enabled = !this.enabled; return this.enabled; }
     };
 
-    // =============================================
+
     // SECTION 2: PARTICLE SYSTEM
-    // =============================================
+
     const ParticleSystem = {
       particles: [],
       
@@ -155,9 +155,9 @@
       }
     };
 
-    // =============================================
+
     // SECTION 3: FLOATING TEXT SYSTEM
-    // =============================================
+
     const FloatingTextSystem = {
       texts: [],
       
@@ -208,9 +208,9 @@
       }
     };
 
-    // =============================================
+    
     // SECTION 4: ACHIEVEMENT SYSTEM
-    // =============================================
+
     const AchievementSystem = {
       achievements: [
         { id: 'bookworm', name: '📚 Bookworm', desc: 'Education level 10', check: (s) => s.education >= 10, unlocked: false },
@@ -261,9 +261,9 @@
       }
     };
 
-    // =============================================
+
     // SECTION 5: RANDOM EVENTS SYSTEM
-    // =============================================
+    
     const EventSystem = {
       events: [
         { type: 'good', text: '🌟 A mentor visited! +8 Education', effect: { education: 8 }, weight: 3 },
@@ -323,9 +323,9 @@
       }
     };
 
-    // =============================================
+
     // SECTION 6: GOALS SYSTEM (NPC Quests)
-    // =============================================
+
     const GoalSystem = {
       goals: [
         { text: '📚 Study 3 times', type: 'action', target: 'Study', count: 3, reward: 30, progress: 0 },
@@ -371,9 +371,9 @@
       }
     };
 
-    // =============================================
+
     // SECTION 7: JOURNAL SYSTEM
-    // =============================================
+
     const JournalSystem = {
       entries: [],
       showJournal: false,
@@ -406,9 +406,9 @@
       }
     };
 
-    // =============================================
+
     // SECTION 8: GAME STATE
-    // =============================================
+
     let room = {
       bgColor: [220, 230, 240],
       wallColor: [245, 240, 230],
@@ -465,9 +465,9 @@
     let cutscene = null;
     let cutsceneTimer = 0;
 
-    // =============================================
+
     // SECTION 9: P5.JS SETUP
-    // =============================================
+
     function setup() {
       let canvas = createCanvas(1000, 600);
       canvas.parent('game-container');
@@ -567,9 +567,9 @@
       ];
     }
 
-    // =============================================
+   
     // SECTION 10: MOUSE INTERACTION
-    // =============================================
+ 
     function mousePressed() {
       AudioSystem.init();
       
@@ -738,9 +738,9 @@
       ];
     }
 
-    // =============================================
+
     // SECTION 11: GAME LOOP
-    // =============================================
+
     function draw() {
       // Handle night overlay
       if (isNighttime) {
@@ -934,9 +934,9 @@
       }
     }
 
-    // =============================================
+
     // SECTION 12: DRAWING FUNCTIONS
-    // =============================================
+
     function drawRoom() {
       // Floor
       fill(room.floorColor);
@@ -1439,9 +1439,9 @@
       text(obj.action, px + 40, py - 5);
     }
 
-    // =============================================
+ 
     // SECTION 13: UI DRAWING
-    // =============================================
+
     function drawUI() {
       // Journal button
       fill(0, 0, 0, 160);
