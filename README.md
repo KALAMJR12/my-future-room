@@ -1,93 +1,70 @@
-# 🛹 Skate to the Future
+# 🏠 My Future Room — Design Your Future
 
-![Skate to the Future](https://img.shields.io/badge/Game-Design%20Your%20Future-gold)
-![Built With](https://img.shields.io/badge/Built%20With-p5.js%20%7C%20Matter.js%20%7C%20GSAP-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
+**A life-simulation browser game where you build skills, balance needs, and watch your future take shape — one room upgrade at a time.**
 
-A browser-based skating game created for the **UoPeople Game Design Challenge** — ***Design Your Future***.
-
-Collect skills, overcome obstacles, and skate through a futuristic city while building the future you envision. Every skill you collect shapes your destiny!
-
----
-
-## 🎮 Play Now
-
-👉 **[Launch Game](https://your-username.github.io/skate-to-the-future/)**
-
-*Replace the URL above with your actual GitHub Pages link after deployment*
+👉 **Play Now:** [kalamjr12.github.io/my-future-room](https://kalamjr12.github.io/my-future-room/)
 
 ---
 
 ## 🎯 About the Game
 
-**Skate to the Future** is an endless runner-style skating game inspired by the Microsoft Edge Surf game, but with a unique twist — you're not just dodging obstacles, you're **collecting your future**.
+*My Future Room* is a mini Sims-style life simulator created for the **UoPeople Game Design Challenge** (Theme: *Design Your Future*).
 
-### Core Concept
+You start in a simple room with four core skills to develop:
+- 📚 **Education** — Study at the bookshelf
+- 💻 **Tech** — Work and code at the computer desk
+- 🎨 **Creativity** — Paint at the easel
+- ❤️ **Wellness** — Exercise on the yoga mat
 
-You play as a skater navigating through a futuristic cityscape. Along the way, you collect essential life skills and resources that directly impact your character's growth and the game's difficulty.
-
-### Skills to Collect
-
-| Skill | Icon | Effect |
-|-------|------|--------|
-| **Education** | 📚 | Unlocks new opportunities |
-| **Tech** | 💻 | Increases game speed |
-| **Creativity** | 🎨 | Colors your journey |
-| **Wellness** | ❤️ | Sustains your momentum |
-| **Food** | 🍎 | Energy resource |
-| **Clothes** | 👕 | Style points |
-
-### Leveling System
-
-- Each skill has 10 levels of progression
-- Every 5 total skill points equals 1 character level up
-- Higher levels increase game difficulty and speed
-- Visual progress bars track your growth in real-time
+Every action shapes your future. As your skills grow, your room visually upgrades — reflecting the life you're designing.
 
 ---
 
-## 🎮 Controls
+## 🎮 How to Play
 
-| Action | Keyboard | Mouse/Touch |
-|--------|----------|--------------|
-| **Move Left** | Left Arrow or A key | Not available |
-| **Move Right** | Right Arrow or D key | Not available |
-| **Jump** | Up Arrow, Space, or W key | Click or Tap anywhere |
+| Action | How |
+|--------|-----|
+| **Interact with objects** | Click any furniture in the room |
+| **View tooltips** | Hover over objects to see what they do |
+| **Track your needs** | Keep Hunger, Energy, and Fun from dropping too low |
+| **Complete goals** | Random daily goals reward you with money |
+| **Unlock achievements** | Reach milestones like "Education Level 10" |
+| **Toggle journal/sound** | Use the top-right buttons |
 
 ---
 
 ## ✨ Features
 
-### Visual Style
-- **3D Perspective Camera** - Behind-the-skater view with dynamic camera movement
-- **Parallax Scrolling** - Multi-layered futuristic cityscape backgrounds
-- **Particle Effects** - Jump particles and collectible glow animations
-- **Animated HUD** - Live skill progress bars and level indicators
-- **Smooth Animations** - GSAP-powered transitions for fluid gameplay
-
-### Technical Highlights
-- Built with **p5.js** for creative rendering and animation
-- **Matter.js** physics engine for realistic collisions
-- **GSAP** for professional-grade smooth animations
-- Fully responsive design that works on desktop and mobile browsers
-- Single HTML file architecture with no build tools or dependencies required
-- All libraries loaded via CDN for instant deployment
-
-### Story Integration
-- Dynamic story messages that change as you progress
-- Narrative-driven gameplay with theme "Design Your Future"
-- Level milestones trigger encouraging messages
-- Skills directly relate to real-world personal development
+- 🧑 **Animated character** — walks, blinks, sleeps, and wears accessories based on skills
+- 🌗 **Day/Night cycle** — window changes from sunny to starry night
+- 🔊 **Sound effects** — footstep, action, achievement, and upgrade sounds
+- 🏆 **Achievement system** — 8 unique achievements to unlock
+- 📖 **Journal** — auto-generated daily summaries of your progress
+- 🎯 **Goal system** — NPC-like quests with rewards
+- ⚡ **Random events** — good and bad surprises that affect your stats
+- 🎨 **Room upgrades** — visual changes at 4 different skill thresholds
+- ✨ **Particle effects** — sparkles and confetti on milestones
+- 📊 **Polished UI** — pulsing low-need warnings, floating text, progress bars
 
 ---
 
-## 🚀 Quick Start
+## 🛠️ Built With
 
-### Play Online
-Just visit the GitHub Pages link above - no installation needed!
+- **p5.js** — Creative coding & rendering
+- **GSAP** — Smooth animations (loaded for potential use)
+- **Web Audio API** — Procedural sound effects (no external audio files)
+- **Vanilla JavaScript** — All game logic in one file
 
-### Run Locally
+---
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/skate-to-the-future.git
+## 🚀 Deploy Your Own
+
+This is a single HTML file. To deploy:
+1. Download `index.html` from this repository
+2. Push to a GitHub repository
+3. Enable GitHub Pages in **Settings → Pages**
+4. Your game will be live in under a minute
+
+---
+
+## 📁 Project Structure
