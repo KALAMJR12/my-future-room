@@ -8,7 +8,7 @@
 
 ## 🎯 About the Game
 
-*My Future Room* is a mini Sims-style life simulator created for the **UoPeople Game Design Challenge** (Theme: *Design Your Future*).
+*My Future Room* is a mini life simulator created for the **UoPeople Game Design Challenge** (Theme: *Design Your Future*).
 
 You start in a simple room with four core skills to develop:
 - 📚 **Education** — Study at the bookshelf
@@ -65,6 +65,5 @@ This is a single HTML file. To deploy:
 3. Enable GitHub Pages in **Settings → Pages**
 4. Your game will be live in under a minute
 
----
 
 ## 📁 Project Structure
