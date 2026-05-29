@@ -4,7 +4,7 @@
 
 👉 **Play Now:** [kalamjr12.github.io/my-future-room](https://kalamjr12.github.io/my-future-room/)
 
----
+NB: This game was built using HTML/CSS/JavaScript with p5.js instead of Roblox Studio due to hardware limitations that prevented Roblox installation. The core challenge — "Design Your Future" — is fully addressed through gameplay mechanics that let players build skills, upgrade their environment, and shape their future through meaningful choices. Every system in the game (skills, needs, achievements, goals, day/night cycle, room evolution) directly supports the theme.
 
 ## 🎯 About the Game
 
