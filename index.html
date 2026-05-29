@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>My Future Room • Design Your Future</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <style>
     * {
@@ -14,7 +13,7 @@
       box-sizing: border-box;
     }
     body {
-      background: #0b0b1a;
+      background: #1a1a2e;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -22,590 +21,667 @@
       font-family: 'Segoe UI', 'Arial', sans-serif;
       overflow: hidden;
     }
-    .game-wrapper {
+    .game-container {
       position: relative;
       width: 100vw;
       height: 100vh;
-      max-width: 900px;
-      max-height: 600px;
-      border-radius: 24px;
+      max-width: 1000px;
+      max-height: 650px;
+      border-radius: 30px;
       overflow: hidden;
-      box-shadow: 0 0 80px rgba(0, 180, 255, 0.3), 0 0 140px rgba(255, 180, 0, 0.25);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 3px rgba(255,215,0,0.3);
     }
     canvas {
       display: block;
     }
-    #ui-layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 10;
-    }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 15px 20px;
-    }
-    .needs-panel {
-      background: rgba(10, 15, 30, 0.85);
-      backdrop-filter: blur(15px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 24px;
-      padding: 10px 16px;
-      color: white;
-      font-size: 12px;
-      font-weight: bold;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-    }
-    .need-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 5px 0;
-    }
-    .need-bar-bg {
-      width: 70px;
-      height: 6px;
-      background: #2a2a4a;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .need-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #4caf50, #8bc34a);
-      border-radius: 10px;
-      transition: width 0.3s ease;
-    }
-    .skills-panel {
-      background: rgba(10, 15, 30, 0.85);
-      backdrop-filter: blur(15px);
-      border: 1px solid rgba(255, 215, 0, 0.5);
-      border-radius: 24px;
-      padding: 10px 16px;
-      color: white;
-      font-size: 12px;
-      font-weight: bold;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-      text-align: right;
-    }
-    .skill-row {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 6px;
-      margin: 4px 0;
-    }
-    .skill-bar-bg {
-      width: 60px;
-      height: 5px;
-      background: #2a2a4a;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .skill-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #ffd700, #ff8c00);
-      border-radius: 10px;
-      transition: width 0.3s ease;
-    }
-    .money-display {
-      margin-top: 6px;
-      color: #ffd700;
-      font-size: 13px;
-    }
-    .bottom-bar {
-      position: absolute;
-      bottom: 15px;
-      left: 20px;
-      right: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      pointer-events: auto;
-    }
-    .story-tag {
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(15px);
-      color: #ddd;
-      padding: 8px 18px;
-      border-radius: 30px;
-      font-size: 13px;
-      max-width: 280px;
-      border-left: 3px solid #ffb74d;
-      font-weight: 500;
-    }
-    button {
-      pointer-events: auto;
-      background: linear-gradient(135deg, #ffd700, #ff8c00);
-      border: none;
-      color: #0a0a1a;
-      font-weight: bold;
-      padding: 10px 20px;
-      border-radius: 30px;
-      cursor: pointer;
-      font-size: 13px;
-      box-shadow: 0 5px 18px rgba(255, 180, 0, 0.5);
-      transition: 0.2s;
-      letter-spacing: 0.5px;
-    }
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 8px 25px rgba(255, 200, 0, 0.8);
-    }
-    .action-hint {
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(10px);
-      padding: 5px 14px;
-      border-radius: 20px;
-      color: white;
-      font-size: 11px;
-      margin-right: 10px;
-    }
   </style>
 </head>
 <body>
-<div class="game-wrapper" id="game-container"></div>
-<div id="ui-layer">
-  <div class="top-bar">
-    <div class="needs-panel">
-      <div style="margin-bottom: 4px; color: #aaa;">⚡ NEEDS</div>
-      <div class="need-item"><span>🍔 Hunger</span><div class="need-bar-bg"><div class="need-fill" id="hunger-fill" style="width: 100%;"></div></div></div>
-      <div class="need-item"><span>⚡ Energy</span><div class="need-bar-bg"><div class="need-fill" id="energy-fill" style="width: 100%;"></div></div></div>
-      <div class="need-item"><span>🎉 Fun</span><div class="need-bar-bg"><div class="need-fill" id="fun-fill" style="width: 100%;"></div></div></div>
-    </div>
-    <div class="skills-panel">
-      <div style="margin-bottom: 4px; color: #ffd700;">🌟 FUTURE SKILLS</div>
-      <div class="skill-row"><span>📚 Education</span><div class="skill-bar-bg"><div class="skill-fill" id="edu-fill" style="width: 10%;"></div></div><span id="edu-lvl">1</span></div>
-      <div class="skill-row"><span>💻 Tech</span><div class="skill-bar-bg"><div class="skill-fill" id="tech-fill" style="width: 10%;"></div></div><span id="tech-lvl">1</span></div>
-      <div class="skill-row"><span>🎨 Creativity</span><div class="skill-bar-bg"><div class="skill-fill" id="crea-fill" style="width: 10%;"></div></div><span id="crea-lvl">1</span></div>
-      <div class="skill-row"><span>❤️ Wellness</span><div class="skill-bar-bg"><div class="skill-fill" id="well-fill" style="width: 10%;"></div></div><span id="well-lvl">1</span></div>
-      <div class="money-display">💰 $<span id="money-display">50</span> | Day <span id="day-display">1</span></div>
-    </div>
-  </div>
-  <div class="bottom-bar">
-    <div class="story-tag" id="story-tag">🏠 Click to move, interact with objects to build your future.</div>
-    <div style="display: flex; align-items: center; gap: 10px;">
-      <span class="action-hint" id="interact-hint">🖱️ Click object to use</span>
-      <button id="restart-btn">🔄 New Life</button>
-    </div>
-  </div>
-</div>
+<div class="game-container" id="game-container"></div>
 
 <script>
-  // ----- MY FUTURE ROOM : Design Your Future Life -----
-  const { Engine, World, Bodies, Body, Events } = Matter;
+// =============================================
+// MY FUTURE ROOM - Design Your Future (Mini Sims)
+// =============================================
 
-  // --- Game State ---
-  let engine, world;
-  let player;
-  let furniture = [];        // objects in room
-  let targetX = null;       // movement target
-  let playerAction = null;  // current interaction {object, type, timer}
-  const INTERACT_TIME = 120; // frames to complete action (~2 sec at 60fps)
+// ----- GLOBAL STATE -----
+let room = {
+  bgColor: [220, 230, 240],  // evolves with upgrades
+  wallColor: [245, 240, 230],
+  floorColor: [180, 160, 140],
+  upgradeLevel: 0,           // 0-4, changes visuals
+};
+
+let character = {
+  x: 400, y: 380,
+  targetX: 400, targetY: 380,
+  moving: false,
+  action: null,             // current object using
+  actionTimer: 0,
+  actionDuration: 120,      // frames
+  facingRight: true,
+};
+
+let skills = {
+  education: 0,
+  tech: 0,
+  creativity: 0,
+  wellness: 0,
+};
+let money = 50;
+let day = 1;
+let dayTimer = 0;
+const DAY_LENGTH = 600;     // frames per day
+
+let needs = {
+  hunger: 100,
+  energy: 100,
+  fun: 100,
+};
+const NEED_DECAY = 0.03;    // per frame
+
+// Objects in room
+let objects = [];
+
+// UI elements
+let message = "Click an object to start designing your future!";
+let messageTimer = 0;
+
+// Progress bar for actions
+let actionProgress = 0;
+let showProgress = false;
+
+// Upgrade definitions
+const upgradeThresholds = [20, 50, 100, 160]; // total skill points
+
+// ----- P5.JS SETUP -----
+function setup() {
+  let canvas = createCanvas(1000, 600);
+  canvas.parent('game-container');
   
-  // Needs (0-100)
-  let hunger = 100;
-  let energy = 100;
-  let fun = 80;
-  const NEED_DECAY = 0.03;  // per frame
-  
-  // Skills (1-10)
-  let skills = { education: 1, tech: 1, creativity: 1, wellness: 1 };
-  let money = 50;
-  let day = 1;
-  
-  // Room upgrades (affects furniture appearance & skill gain)
-  let roomLevel = 1;  // 1-4 based on total skills
-  const upgradeCosts = [0, 80, 200, 400]; // cost to upgrade to next level
-  
-  // Animation
-  let walkFrame = 0;
-  let interactionProgress = 0; // 0-1 for progress bar
-  
-  // --- p5.js Setup ---
-  function setup() {
-    const canvas = createCanvas(900, 600);
-    canvas.parent('game-container');
-    
-    // Matter.js
-    engine = Engine.create();
-    world = engine.world;
-    engine.gravity.y = 0;
-    
-    // Create player (small circle)
-    player = Bodies.circle(200, 300, 16, {
-      label: 'player',
-      friction: 0.1,
-      restitution: 0,
-      mass: 2
-    });
-    World.add(world, player);
-    Body.setInertia(player, Infinity);
-    
-    // Create room objects (static sensors)
-    createFurniture();
-    
-    // Collision events
-    Events.on(engine, 'collisionStart', handleCollisionStart);
-    
-    updateUI();
-  }
-  
-  function createFurniture() {
-    // Remove old furniture bodies from world
-    for (let f of furniture) World.remove(world, f.body);
-    furniture = [];
-    
-    // Define objects based on room level
-    const baseY = 400;
-    const objects = [
-      { x: 120, y: baseY, w: 40, h: 60, label: 'bed', icon: '🛏️', action: 'sleep', skill: null, needRestore: {energy: 60}, color: [100, 80, 140] },
-      { x: 280, y: baseY-10, w: 35, h: 50, label: 'bookshelf', icon: '📚', action: 'study', skill: 'education', needCost: {energy: 8, fun: 5}, color: [139, 90, 43] },
-      { x: 440, y: baseY-10, w: 35, h: 40, label: 'computer', icon: '💻', action: 'work', skill: 'tech', needCost: {energy: 10, fun: 7}, color: [70, 70, 90], alsoEarn: true },
-      { x: 580, y: baseY-10, w: 30, h: 45, label: 'easel', icon: '🎨', action: 'paint', skill: 'creativity', needCost: {energy: 6, fun: -10}, color: [200, 120, 80] },
-      { x: 720, y: baseY-5, w: 30, h: 20, label: 'fridge', icon: '🍎', action: 'eat', skill: null, needRestore: {hunger: 45}, color: [200, 200, 210] },
-      { x: 800, y: baseY-15, w: 30, h: 25, label: 'radio', icon: '📻', action: 'dance', skill: 'wellness', needCost: {energy: 5, fun: -15}, color: [180, 150, 120] }
-    ];
-    
-    // Upgrade visuals: later levels add yoga mat or change sizes
-    if (roomLevel >= 2) {
-      objects.push({ x: 660, y: baseY+5, w: 35, h: 10, label: 'yoga', icon: '🧘', action: 'exercise', skill: 'wellness', needCost: {energy: 8, fun: 4}, color: [150, 100, 200] });
-    }
-    
-    for (let obj of objects) {
-      let body = Bodies.rectangle(obj.x, obj.y, obj.w, obj.h, {
-        isStatic: true,
-        isSensor: true,
-        label: obj.label,
-        furnitureData: obj
-      });
-      World.add(world, body);
-      furniture.push({ body, ...obj });
-    }
-  }
-  
-  function handleCollisionStart(event) {
-    const pairs = event.pairs;
-    for (let pair of pairs) {
-      const bodyA = pair.bodyA;
-      const bodyB = pair.bodyB;
-      if (bodyA.label === 'player' && bodyB.isSensor) {
-        // Player touched furniture – if not already doing an action, auto-start?
-        // We'll handle interaction via click, not auto.
-      }
-    }
-  }
-  
-  // --- Game Loop ---
-  function draw() {
-    background(25, 30, 50);
-    
-    // Update physics
-    Engine.update(engine, 1000 / 60);
-    
-    // Player movement towards target
-    if (targetX !== null && !playerAction) {
-      const dx = targetX - player.position.x;
-      if (abs(dx) > 2) {
-        Body.setVelocity(player, { x: dx * 0.1, y: 0 });
-        walkFrame += 0.2;
-      } else {
-        Body.setVelocity(player, { x: 0, y: 0 });
-        targetX = null;
-        walkFrame = 0;
-      }
-    } else if (!playerAction) {
-      Body.setVelocity(player, { x: 0, y: 0 });
-      walkFrame = 0;
-    }
-    
-    // Needs decay
-    if (!playerAction || playerAction.action !== 'sleep') {
-      hunger = max(0, hunger - NEED_DECAY * 0.7);
-      energy = max(0, energy - NEED_DECAY * 0.5);
-      fun = max(0, fun - NEED_DECAY * 0.4);
-    }
-    
-    // Action progress
-    if (playerAction) {
-      playerAction.timer--;
-      interactionProgress = 1 - (playerAction.timer / INTERACT_TIME);
-      if (playerAction.timer <= 0) {
-        completeAction(playerAction);
-        playerAction = null;
-        interactionProgress = 0;
-      }
-    }
-    
-    // Draw room
-    drawRoom();
-    
-    // Draw furniture
-    for (let f of furniture) {
-      drawFurniture(f);
-    }
-    
-    // Draw player
-    drawPlayer();
-    
-    // Draw interaction progress bar if active
-    if (playerAction) {
-      drawProgressBar();
-    }
-    
-    // Update UI every frame (could throttle)
-    updateUI();
-    
-    // Day cycle: if energy < 10 and player sleeps, day advances (handled in completeAction)
-  }
-  
-  function drawRoom() {
-    // Floor
-    fill(60, 55, 70);
-    rect(0, 430, width, 170);
-    // Wall
-    fill(45, 40, 55);
-    rect(0, 0, width, 430);
-    // Baseboard
-    fill(80, 70, 90);
-    rect(0, 420, width, 15);
-    
-    // Window
-    fill(120, 180, 220, 80);
-    rect(50, 120, 100, 130, 10);
-    fill(180, 220, 255, 60);
-    rect(55, 125, 90, 120);
-    
-    // Room level decorations
-    if (roomLevel >= 2) {
-      fill(100, 140, 100, 60);
-      rect(750, 180, 70, 100, 8); // plant
-    }
-    if (roomLevel >= 3) {
-      fill(200, 160, 60, 70);
-      ellipse(820, 250, 40, 50); // painting
-    }
-    if (roomLevel >= 4) {
-      fill(220, 200, 140, 50);
-      rect(680, 150, 50, 50, 5); // certificate
+  initObjects();
+  updateRoomAppearance();
+}
+
+function initObjects() {
+  // Each object: name, x, y, w, h, action, skill gain, need effect, money gain, description
+  objects = [
+    {
+      name: 'Bookshelf',
+      x: 150, y: 310, w: 60, h: 90,
+      action: 'Study',
+      skill: 'education',
+      skillGain: 2,
+      needEffect: { fun: -5, energy: -8 },
+      moneyGain: 0,
+      description: '📚 Study to gain Education',
+      color: [139, 90, 43],
+    },
+    {
+      name: 'Computer Desk',
+      x: 380, y: 340, w: 70, h: 50,
+      action: 'Work / Code',
+      skill: 'tech',
+      skillGain: 2,
+      needEffect: { fun: -3, energy: -10 },
+      moneyGain: 15,
+      description: '💻 Work to earn money & Tech',
+      color: [80, 80, 100],
+    },
+    {
+      name: 'Easel',
+      x: 620, y: 320, w: 50, h: 80,
+      action: 'Paint',
+      skill: 'creativity',
+      skillGain: 2,
+      needEffect: { fun: 10, energy: -5 },
+      moneyGain: 0,
+      description: '🎨 Paint to boost Creativity',
+      color: [200, 150, 100],
+    },
+    {
+      name: 'Yoga Mat',
+      x: 800, y: 390, w: 70, h: 20,
+      action: 'Exercise',
+      skill: 'wellness',
+      skillGain: 2,
+      needEffect: { energy: -12, fun: 2 },
+      moneyGain: 0,
+      description: '🧘 Exercise for Wellness',
+      color: [100, 180, 120],
+    },
+    {
+      name: 'Fridge',
+      x: 80, y: 360, w: 50, h: 60,
+      action: 'Eat',
+      skill: null,
+      skillGain: 0,
+      needEffect: { hunger: 35, energy: 5 },
+      moneyGain: 0,
+      description: '🍎 Eat to restore Hunger',
+      color: [220, 220, 220],
+    },
+    {
+      name: 'Bed',
+      x: 520, y: 350, w: 100, h: 40,
+      action: 'Sleep',
+      skill: null,
+      skillGain: 0,
+      needEffect: { energy: 40, hunger: -5 },
+      moneyGain: 0,
+      description: '🛏️ Sleep to restore Energy',
+      color: [180, 140, 200],
+    },
+    {
+      name: 'Radio',
+      x: 280, y: 400, w: 40, h: 30,
+      action: 'Listen Music',
+      skill: null,
+      skillGain: 0,
+      needEffect: { fun: 25, energy: -3 },
+      moneyGain: 0,
+      description: '🎵 Relax to gain Fun',
+      color: [200, 100, 100],
+    },
+  ];
+}
+
+// ----- MOUSE INTERACTION -----
+function mousePressed() {
+  // Check if clicked on any object
+  for (let obj of objects) {
+    if (mouseX > obj.x && mouseX < obj.x + obj.w &&
+        mouseY > obj.y && mouseY < obj.y + obj.h) {
+      // Move character near object
+      let targetX = obj.x + obj.w/2;
+      let targetY = obj.y - 30; // stand in front of it
+      startCharacterAction(obj, targetX, targetY);
+      return;
     }
   }
+}
+
+function startCharacterAction(obj, tx, ty) {
+  if (character.moving || character.action) return; // already busy
   
-  function drawFurniture(f) {
-    push();
-    translate(f.body.position.x, f.body.position.y);
-    fill(f.color);
-    rectMode(CENTER);
-    if (f.label === 'bed') {
-      rect(0, 0, f.w, f.h, 10);
-      fill(220, 200, 240, 150);
-      rect(0, -15, f.w-10, f.h-30, 6);
-    } else if (f.label === 'bookshelf') {
-      rect(0, 0, f.w, f.h, 4);
-      fill(160, 120, 70);
-      for (let i=-15; i<=15; i+=10) rect(0, i, f.w-6, 3);
-    } else if (f.label === 'computer') {
-      rect(0, 0, f.w, f.h, 6);
-      fill(30, 30, 40);
-      rect(0, -10, 28, 20, 4);
-      fill(100, 200, 255, 80);
-      rect(0, -10, 22, 14);
-    } else if (f.label === 'easel') {
-      rect(0, 0, f.w, f.h, 3);
-      fill(220, 180, 140);
-      triangle(-12, 15, 0, -20, 12, 15);
-    } else if (f.label === 'fridge') {
-      rect(0, 0, f.w, f.h, 5);
-      fill(180, 180, 190);
-      rect(0, -5, f.w-6, f.h-12, 3);
-    } else if (f.label === 'radio') {
-      rect(0, 0, f.w, f.h, 5);
-      fill(60);
-      ellipse(0, -5, 10, 10);
-    } else if (f.label === 'yoga') {
-      fill(150, 100, 200);
-      rect(0, 0, f.w, f.h, 5);
-    }
-    // Icon
-    fill(255);
-    textSize(16);
-    textAlign(CENTER, CENTER);
-    text(f.icon, 0, -f.h/2-10);
-    pop();
+  character.targetX = tx;
+  character.targetY = ty;
+  character.moving = true;
+  character.actionObj = obj;
+}
+
+function performAction() {
+  let obj = character.actionObj;
+  if (!obj) return;
+  
+  // Apply skill gain
+  if (obj.skill && skills[obj.skill] !== undefined) {
+    skills[obj.skill] = min(skills[obj.skill] + obj.skillGain, 100);
   }
   
-  function drawPlayer() {
-    push();
-    translate(player.position.x, player.position.y);
-    
-    // Shadow
-    fill(0, 0, 0, 30);
-    ellipse(0, 20, 24, 8);
-    
-    // Walking animation
-    let legSwing = sin(walkFrame) * 8;
-    
-    // Body
-    fill(255, 200, 150);
-    ellipse(0, -10, 18, 22);
-    
-    // Head
-    fill(255, 210, 170);
-    ellipse(0, -28, 18, 20);
-    // Hair
-    fill(60, 40, 20);
-    arc(0, -34, 20, 10, PI, TWO_PI);
-    // Eyes
-    fill(30);
-    ellipse(-4, -29, 3, 4);
-    ellipse(4, -29, 3, 4);
-    
-    // Arms
-    stroke(255, 200, 150);
-    strokeWeight(3);
-    line(-10, -12, -20, 0);
-    line(10, -12, 20, 0);
-    noStroke();
-    
-    // Legs
-    stroke(80, 60, 120);
-    strokeWeight(4);
-    line(-6, 8, -8 + legSwing*0.5, 22);
-    line(6, 8, 8 - legSwing*0.5, 22);
-    noStroke();
-    
-    // Shoes
-    fill(40);
-    ellipse(-8 + legSwing*0.5, 24, 8, 5);
-    ellipse(8 - legSwing*0.5, 24, 8, 5);
-    
-    pop();
+  // Apply need effects
+  for (let need in obj.needEffect) {
+    needs[need] = constrain(needs[need] + obj.needEffect[need], 0, 100);
   }
   
-  function drawProgressBar() {
-    if (!playerAction) return;
-    let obj = playerAction.object;
-    push();
-    translate(obj.body.position.x, obj.body.position.y - 40);
-    fill(0, 0, 0, 150);
-    rectMode(CENTER);
-    rect(0, 0, 40, 8, 4);
-    fill(255, 200, 0);
-    rect(0, 0, 38 * interactionProgress, 6, 3);
-    pop();
+  // Money
+  money += obj.moneyGain;
+  if (money < 0) money = 0;
+  
+  // Message
+  message = obj.description;
+  messageTimer = 180;
+  
+  // Check upgrades
+  checkRoomUpgrade();
+  
+  // Advance day timer slightly
+  dayTimer += 30;
+  if (dayTimer >= DAY_LENGTH) {
+    dayTimer = 0;
+    day++;
+    message = `☀️ Day ${day} - Your future grows brighter!`;
+    messageTimer = 240;
+  }
+}
+
+function checkRoomUpgrade() {
+  let total = skills.education + skills.tech + skills.creativity + skills.wellness;
+  let newLevel = 0;
+  for (let i = upgradeThresholds.length - 1; i >= 0; i--) {
+    if (total >= upgradeThresholds[i]) {
+      newLevel = i + 1;
+      break;
+    }
+  }
+  if (newLevel > room.upgradeLevel) {
+    room.upgradeLevel = newLevel;
+    updateRoomAppearance();
+    message = `✨ Room upgraded! Your future is taking shape.`;
+    messageTimer = 300;
+  }
+}
+
+function updateRoomAppearance() {
+  let lvl = room.upgradeLevel;
+  // Wall & floor colors become warmer/brighter
+  room.wallColor = [
+    lerp(245, 255, lvl/4),
+    lerp(240, 245, lvl/4),
+    lerp(230, 235, lvl/4)
+  ];
+  room.floorColor = [
+    lerp(180, 200, lvl/4),
+    lerp(160, 180, lvl/4),
+    lerp(140, 160, lvl/4)
+  ];
+  // Background becomes more vibrant
+  room.bgColor = [
+    lerp(220, 200, lvl/4),
+    lerp(230, 220, lvl/4),
+    lerp(240, 240, lvl/4)
+  ];
+}
+
+// ----- GAME LOOP -----
+function draw() {
+  background(room.bgColor);
+  
+  // Update needs decay
+  updateNeeds();
+  
+  // Update character movement & action
+  updateCharacter();
+  
+  // Draw room
+  drawRoom();
+  
+  // Draw objects
+  for (let obj of objects) {
+    drawObject(obj);
   }
   
-  function completeAction(action) {
-    const obj = action.object;
-    const data = obj.furnitureData;
+  // Draw character
+  drawCharacter();
+  
+  // Draw progress bar if action ongoing
+  if (showProgress && character.action) {
+    drawProgressBar();
+  }
+  
+  // Draw UI overlay
+  drawUI();
+  
+  // Message timer
+  if (messageTimer > 0) {
+    messageTimer--;
+    if (messageTimer <= 0) message = "";
+  }
+}
+
+function updateNeeds() {
+  // Decay all needs slowly
+  needs.hunger = max(0, needs.hunger - NEED_DECAY);
+  needs.energy = max(0, needs.energy - NEED_DECAY * 1.2);
+  needs.fun = max(0, needs.fun - NEED_DECAY * 0.8);
+  
+  // Very low needs reduce action effectiveness? (future feature)
+}
+
+function updateCharacter() {
+  // Movement
+  if (character.moving) {
+    let dx = character.targetX - character.x;
+    let dy = character.targetY - character.y;
+    let dist = sqrt(dx*dx + dy*dy);
     
-    // Apply need changes
-    if (data.needRestore) {
-      if (data.needRestore.hunger) hunger = min(100, hunger + data.needRestore.hunger);
-      if (data.needRestore.energy) energy = min(100, energy + data.needRestore.energy);
-      if (data.needRestore.fun) fun = min(100, fun + data.needRestore.fun);
-    }
-    if (data.needCost) {
-      if (data.needCost.hunger) hunger = max(0, hunger - data.needCost.hunger);
-      if (data.needCost.energy) energy = max(0, energy - data.needCost.energy);
-      if (data.needCost.fun) fun = max(0, fun - data.needCost.fun);
-    }
-    
-    // Skill gain
-    if (data.skill) {
-      skills[data.skill] = min(10, skills[data.skill] + 1);
-    }
-    
-    // Earn money if work
-    if (data.alsoEarn) {
-      money += 20 + skills.tech * 5;
-    }
-    
-    // Check if sleep ends day
-    if (data.action === 'sleep') {
-      day++;
-      energy = 100;
-      document.getElementById('story-tag').innerText = `🌅 Day ${day} begins! Your future grows brighter.`;
+    if (dist < 3) {
+      // Arrived
+      character.x = character.targetX;
+      character.y = character.targetY;
+      character.moving = false;
+      // Start action
+      character.action = character.actionObj;
+      character.actionTimer = character.actionDuration;
+      showProgress = true;
+      actionProgress = 0;
+      
+      // Face the object
+      if (character.actionObj.x > character.x) character.facingRight = true;
+      else character.facingRight = false;
     } else {
-      document.getElementById('story-tag').innerText = `✨ ${data.icon} Used! Keep designing your future.`;
+      // Move towards target
+      let speed = 3;
+      character.x += (dx / dist) * speed;
+      character.y += (dy / dist) * speed;
+      character.facingRight = dx > 0;
     }
+  }
+  
+  // Action timer
+  if (character.action) {
+    character.actionTimer--;
+    actionProgress = 1 - (character.actionTimer / character.actionDuration);
     
-    // Check room upgrade
-    let totalSkills = skills.education + skills.tech + skills.creativity + skills.wellness;
-    let newLevel = 1 + floor(totalSkills / 8);
-    if (newLevel > roomLevel && money >= upgradeCosts[newLevel]) {
-      money -= upgradeCosts[newLevel];
-      roomLevel = newLevel;
-      createFurniture(); // refresh objects
-      document.getElementById('story-tag').innerText = `🏠 Room upgraded! Level ${roomLevel}`;
+    if (character.actionTimer <= 0) {
+      // Action complete
+      performAction();
+      character.action = null;
+      character.actionObj = null;
+      showProgress = false;
+      actionProgress = 0;
     }
-    
-    updateUI();
   }
+}
+
+// ----- DRAWING FUNCTIONS -----
+function drawRoom() {
+  // Floor
+  fill(room.floorColor);
+  noStroke();
+  rect(0, 420, width, height - 420);
   
-  function updateUI() {
-    document.getElementById('hunger-fill').style.width = hunger + '%';
-    document.getElementById('energy-fill').style.width = energy + '%';
-    document.getElementById('fun-fill').style.width = fun + '%';
-    
-    document.getElementById('edu-fill').style.width = (skills.education * 10) + '%';
-    document.getElementById('tech-fill').style.width = (skills.tech * 10) + '%';
-    document.getElementById('crea-fill').style.width = (skills.creativity * 10) + '%';
-    document.getElementById('well-fill').style.width = (skills.wellness * 10) + '%';
-    document.getElementById('edu-lvl').innerText = skills.education;
-    document.getElementById('tech-lvl').innerText = skills.tech;
-    document.getElementById('crea-lvl').innerText = skills.creativity;
-    document.getElementById('well-lvl').innerText = skills.wellness;
-    document.getElementById('money-display').innerText = money;
-    document.getElementById('day-display').innerText = day;
+  // Wall
+  fill(room.wallColor);
+  rect(0, 0, width, 420);
+  
+  // Baseboard
+  fill(200, 180, 160);
+  rect(0, 410, width, 15);
+  
+  // Window (gets nicer with upgrades)
+  let windowX = 700, windowY = 80;
+  fill(180, 210, 240);
+  rect(windowX, windowY, 120, 150, 10);
+  fill(150, 180, 210);
+  rect(windowX+5, windowY+5, 110, 140);
+  // Curtains
+  fill(200, 150, 120);
+  rect(windowX-10, windowY-10, 20, 160, 5);
+  rect(windowX+110, windowY-10, 20, 160, 5);
+  
+  // Plant / decoration based on upgrade
+  if (room.upgradeLevel >= 1) {
+    fill(80, 150, 80);
+    ellipse(900, 380, 40, 50);
+    fill(100, 70, 50);
+    rect(895, 400, 10, 30);
   }
-  
-  // --- Interaction ---
-  function mousePressed() {
-    if (playerAction) return; // busy
-    
-    // Check if click is on furniture
-    for (let f of furniture) {
-      let d = dist(mouseX, mouseY, f.body.position.x, f.body.position.y);
-      if (d < 35) {
-        // Move player to object
-        targetX = f.body.position.x;
-        // Start interaction after reaching
-        playerAction = { object: f, action: f.action, timer: INTERACT_TIME };
-        document.getElementById('interact-hint').innerText = `⏳ Using ${f.icon}...`;
-        return;
-      }
+  if (room.upgradeLevel >= 2) {
+    // Picture frame
+    fill(120, 80, 60);
+    rect(450, 100, 80, 60, 5);
+    fill(200, 180, 140);
+    rect(455, 105, 70, 50);
+    // Draw a simple landscape inside
+    fill(100, 180, 100);
+    rect(455, 130, 70, 25);
+    fill(220, 200, 100);
+    ellipse(490, 120, 20, 20);
+  }
+  if (room.upgradeLevel >= 3) {
+    // Bookshelf on wall
+    fill(120, 90, 60);
+    rect(50, 100, 80, 15);
+    rect(50, 130, 80, 15);
+    rect(50, 160, 80, 15);
+    fill(180, 150, 120);
+    for (let i=0; i<5; i++) {
+      rect(55 + i*15, 90, 8, 12);
     }
-    
-    // Otherwise move player
-    targetX = mouseX;
-    playerAction = null;
-    interactionProgress = 0;
   }
   
-  function restartGame() {
-    // Reset all state
-    hunger = 100; energy = 100; fun = 80;
-    skills = { education: 1, tech: 1, creativity: 1, wellness: 1 };
-    money = 50; day = 1; roomLevel = 1;
-    targetX = null; playerAction = null; interactionProgress = 0;
-    Body.setPosition(player, { x: 200, y: 300 });
-    Body.setVelocity(player, { x: 0, y: 0 });
-    createFurniture();
-    updateUI();
-    document.getElementById('story-tag').innerText = '🏠 New life! Click to move and interact.';
+  // Rug
+  fill(180, 150, 130, 150);
+  ellipse(500, 430, 200, 40);
+}
+
+function drawObject(obj) {
+  push();
+  translate(obj.x, obj.y);
+  
+  // Highlight on hover
+  if (mouseX > obj.x && mouseX < obj.x + obj.w &&
+      mouseY > obj.y && mouseY < obj.y + obj.h) {
+    fill(255, 255, 200, 50);
+    rect(0, 0, obj.w, obj.h, 5);
   }
   
-  document.getElementById('restart-btn').addEventListener('click', restartGame);
+  // Object-specific drawing
+  if (obj.name === 'Bookshelf') {
+    fill(139, 90, 43);
+    rect(0, 0, obj.w, obj.h, 4);
+    fill(160, 120, 80);
+    rect(5, 10, 50, 15);
+    rect(5, 35, 50, 15);
+    rect(5, 60, 50, 15);
+    // Books
+    fill(200, 50, 50); rect(10, 12, 5, 12);
+    fill(50, 50, 200); rect(20, 12, 5, 12);
+    fill(50, 150, 50); rect(30, 37, 5, 12);
+  } else if (obj.name === 'Computer Desk') {
+    fill(80, 80, 100);
+    rect(0, 20, obj.w, 30, 4);
+    fill(60, 60, 80);
+    rect(5, 0, 10, 20);
+    rect(55, 0, 10, 20);
+    // Monitor
+    fill(40, 40, 50);
+    rect(15, -10, 35, 25, 3);
+    fill(100, 200, 255, 180);
+    rect(18, -7, 29, 19);
+    // Keyboard
+    fill(30);
+    rect(25, 25, 20, 8);
+  } else if (obj.name === 'Easel') {
+    fill(200, 150, 100);
+    triangle(0, 80, 25, 0, 50, 80);
+    rect(20, 80, 10, 5);
+    // Canvas
+    fill(240);
+    rect(15, 15, 20, 25);
+    fill(255, 100, 100);
+    ellipse(25, 25, 10, 10);
+  } else if (obj.name === 'Yoga Mat') {
+    fill(100, 180, 120);
+    rect(0, 10, obj.w, 10, 5);
+    fill(80, 140, 100);
+    rect(5, 0, obj.w-10, 10, 3);
+  } else if (obj.name === 'Fridge') {
+    fill(220);
+    rect(0, 0, obj.w, obj.h, 5);
+    fill(180);
+    rect(5, 5, 40, 20);
+    rect(5, 30, 40, 20);
+  } else if (obj.name === 'Bed') {
+    fill(180, 140, 200);
+    rect(0, 10, obj.w, 30, 8);
+    fill(220, 200, 230);
+    rect(10, 15, 40, 15);
+    rect(60, 15, 30, 15);
+    // Pillow
+    fill(240);
+    rect(5, 12, 20, 10, 3);
+  } else if (obj.name === 'Radio') {
+    fill(200, 100, 100);
+    rect(0, 5, obj.w, 25, 5);
+    fill(40);
+    rect(5, 10, 30, 15);
+    ellipse(20, 17, 8, 8);
+  }
   
-  // Prevent default for arrow keys etc (not needed but good)
-  window.addEventListener('keydown', (e) => {
-    if ([32, 37, 38, 39, 40].includes(e.keyCode)) e.preventDefault();
-  });
+  // Label below
+  fill(50);
+  textSize(10);
+  textAlign(CENTER);
+  text(obj.name, obj.w/2, obj.h + 12);
+  
+  pop();
+}
+
+function drawCharacter() {
+  push();
+  translate(character.x, character.y);
+  
+  // Shadow
+  fill(0, 30);
+  ellipse(0, 40, 35, 10);
+  
+  // Body
+  let bodyColor = color(100, 150, 220);
+  if (character.action && character.actionObj) {
+    // Slightly tint based on action
+    if (character.actionObj.skill === 'education') bodyColor = color(120, 140, 200);
+    else if (character.actionObj.skill === 'tech') bodyColor = color(100, 180, 200);
+    else if (character.actionObj.skill === 'creativity') bodyColor = color(220, 130, 160);
+    else if (character.actionObj.skill === 'wellness') bodyColor = color(100, 200, 150);
+  }
+  
+  // Legs
+  stroke(180, 150, 120);
+  strokeWeight(5);
+  if (character.moving) {
+    let legSwing = sin(frameCount * 0.3) * 10;
+    line(-8, 30, -12 + legSwing, 10);
+    line(8, 30, 12 - legSwing, 10);
+  } else {
+    line(-8, 30, -10, 10);
+    line(8, 30, 10, 10);
+  }
+  
+  // Body
+  noStroke();
+  fill(bodyColor);
+  ellipse(0, 0, 24, 30);
+  
+  // Arms
+  stroke(180, 150, 120);
+  strokeWeight(4);
+  if (character.action) {
+    // Reach towards object
+    line(-10, -5, -20, -15);
+    line(10, -5, 20, -15);
+  } else {
+    line(-10, -5, -18, 10);
+    line(10, -5, 18, 10);
+  }
+  
+  // Head
+  noStroke();
+  fill(255, 210, 170);
+  ellipse(0, -28, 24, 26);
+  
+  // Hair
+  fill(60, 40, 20);
+  arc(0, -35, 26, 14, PI, TWO_PI);
+  
+  // Eyes
+  fill(30);
+  ellipse(-6, -30, 4, 5);
+  ellipse(6, -30, 4, 5);
+  fill(255);
+  ellipse(-5, -31, 2, 2);
+  ellipse(7, -31, 2, 2);
+  
+  // Mouth
+  noFill();
+  stroke(180, 100, 80);
+  strokeWeight(1.5);
+  arc(0, -22, 8, 4, 0, PI);
+  
+  pop();
+}
+
+function drawProgressBar() {
+  if (!character.actionObj) return;
+  let obj = character.actionObj;
+  let px = obj.x + obj.w/2 - 40;
+  let py = obj.y - 25;
+  
+  fill(0, 150);
+  rect(px, py, 80, 12, 6);
+  fill(255, 215, 0);
+  rect(px, py, 80 * actionProgress, 12, 6);
+  
+  fill(255);
+  textSize(10);
+  textAlign(CENTER);
+  text(obj.action, px + 40, py - 5);
+}
+
+function drawUI() {
+  // Panel background
+  fill(0, 0, 0, 160);
+  noStroke();
+  rect(10, 10, 220, 250, 15);
+  
+  // Needs
+  fill(255);
+  textSize(14);
+  textAlign(LEFT);
+  text("❤️ NEEDS", 20, 35);
+  
+  drawNeedBar("Hunger", needs.hunger, 20, 50);
+  drawNeedBar("Energy", needs.energy, 20, 75);
+  drawNeedBar("Fun", needs.fun, 20, 100);
+  
+  // Skills
+  fill(255);
+  text("📈 SKILLS", 20, 135);
+  drawSkillBar("Education", skills.education, 20, 150);
+  drawSkillBar("Tech", skills.tech, 20, 170);
+  drawSkillBar("Creativity", skills.creativity, 20, 190);
+  drawSkillBar("Wellness", skills.wellness, 20, 210);
+  
+  // Money & Day
+  fill(255, 215, 0);
+  textSize(13);
+  text(`💰 $${money}`, 20, 240);
+  fill(200);
+  text(`📅 Day ${day}`, 120, 240);
+  
+  // Message at bottom center
+  if (messageTimer > 0) {
+    fill(0, 0, 0, 180);
+    rect(width/2 - 200, height - 60, 400, 40, 20);
+    fill(255, 255, 200);
+    textSize(14);
+    textAlign(CENTER);
+    text(message, width/2, height - 35);
+  }
+  
+  // Title
+  fill(255, 255, 200, 200);
+  textSize(18);
+  textAlign(RIGHT);
+  text("✨ My Future Room", width - 20, 35);
+  textSize(11);
+  text("Design Your Future", width - 20, 55);
+}
+
+function drawNeedBar(label, value, x, y) {
+  fill(200);
+  textSize(11);
+  text(label, x, y);
+  fill(100);
+  rect(x+50, y-8, 80, 10, 4);
+  let col = value > 50 ? color(100, 200, 100) : color(220, 100, 100);
+  fill(col);
+  rect(x+50, y-8, 80 * (value/100), 10, 4);
+}
+
+function drawSkillBar(label, value, x, y) {
+  fill(200);
+  textSize(11);
+  text(label, x, y);
+  fill(100);
+  rect(x+70, y-8, 80, 10, 4);
+  fill(100, 180, 255);
+  rect(x+70, y-8, 80 * (value/100), 10, 4);
+}
+
+// Prevent default right-click menu on canvas
+document.addEventListener('contextmenu', event => event.preventDefault());
 </script>
 </body>
 </html>
