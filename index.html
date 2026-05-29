@@ -4,899 +4,1629 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>My Future Room • Design Your Future</title>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js">
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js">
-  </script>
+  
+  <!-- ============================================ -->
+  <!-- CSS STYLES                                    -->
+  <!-- ============================================ -->
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+    
     body {
       background: #1a1a2e;
-      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
       font-family: 'Segoe UI', 'Arial', sans-serif;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: none;
+      overflow: hidden;
     }
+    
+    .game-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      max-width: 1000px;
+      max-height: 650px;
+      border-radius: 30px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 3px rgba(255,215,0,0.3);
+    }
+    
     canvas {
       display: block;
-      position: fixed;
-      inset: 0;
     }
-    .ui {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .panel {
-      background: rgba(10, 15, 30, 0.75);
-      backdrop-filter: blur(18px);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 18px;
-      color: white;
-      padding: 10px 18px;
-      font-weight: 500;
-      font-size: 13px;
-      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
-    }
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 14px 18px;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .needs-box {
-      min-width: 180px;
-    }
-    .needs-box .title {
-      color: #aaa;
-      font-size: 11px;
-      margin-bottom: 5px;
-    }
-    .need-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin: 3px 0;
-      font-size: 11px;
-    }
-    .need-bar-bg {
-      width: 70px;
-      height: 5px;
-      background: #2a2a4a;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .need-fill {
-      height: 100%;
-      border-radius: 8px;
-      transition: width 0.3s;
-    }
-    .skills-box {
-      min-width: 200px;
-      text-align: right;
-    }
-    .skills-box .title {
-      color: #ffd700;
-      font-size: 11px;
-      margin-bottom: 5px;
-    }
-    .skill-row {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 5px;
-      margin: 2px 0;
-      font-size: 11px;
-    }
-    .skill-bar-bg {
-      width: 55px;
-      height: 4px;
-      background: #2a2a4a;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .skill-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #ffd700, #ff8c00);
-      border-radius: 8px;
-      transition: width 0.3s;
-    }
-    .bottombar {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 18px;
-      flex-wrap: wrap;
-    }
-    .story-msg {
-      max-width: 320px;
-      text-align: center;
-      font-size: 12px;
-    }
-    .btn {
-      pointer-events: auto;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      color: white;
-      padding: 9px 17px;
-      border-radius: 25px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 500;
-      transition: all 0.25s;
-      backdrop-filter: blur(10px);
-      letter-spacing: 0.3px;
-    }
-    .btn:hover {
-      background: rgba(255, 255, 255, 0.22);
-      transform: translateY(-2px);
-    }
-    .btn.primary {
-      background: linear-gradient(135deg, #ffd700, #ff8c00);
-      border: none;
-      color: #0a0a1a;
-      font-weight: bold;
-    }
-    .btn.sound-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-    .hint-text {
-      position: absolute;
-      bottom: 110px;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      font-size: 11px;
-      white-space: nowrap;
-    }
-    .progress-indicator {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      pointer-events: none;
-    }
-    .progress-circle {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: 3px solid rgba(255, 215, 0, 0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(10px);
-      transition: opacity 0.3s;
-    }
-    @media (max-width: 768px) {
-      .topbar {
-        flex-direction: column;
-      }
-      .skills-box {
-        text-align: left;
-      }
-      .skill-row {
-        justify-content: flex-start;
-      }
-    }
+    
+    /* Overlay UI elements drawn via p5.js canvas */
+    /* No additional HTML UI needed - all drawn on canvas */
   </style>
 </head>
 <body>
-<div class="ui">
-  <div class="topbar">
-    <div class="panel needs-box">
-      <div class="title">⚡ NEEDS</div>
-      <div class="need-row">🍔 Hunger <div class="need-bar-bg"><div class="need-fill" id="hunger-fill" style="width:100%;background:#4caf50;"></div></div></div>
-      <div class="need-row">⚡ Energy <div class="need-bar-bg"><div class="need-fill" id="energy-fill" style="width:100%;background:#ff9800;"></div></div></div>
-      <div class="need-row">🎉 Fun <div class="need-bar-bg"><div class="need-fill" id="fun-fill" style="width:100%;background:#2196f3;"></div></div></div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <button class="btn sound-btn" id="soundBtn" title="Toggle Sound">🔊</button>
-    </div>
-    <div class="panel skills-box">
-      <div class="title">🌟 FUTURE SKILLS</div>
-      <div class="skill-row">📚 Education <div class="skill-bar-bg"><div class="skill-fill" id="edu-fill" style="width:0%;"></div></div> <span id="edu-val">0</span></div>
-      <div class="skill-row">💻 Tech <div class="skill-bar-bg"><div class="skill-fill" id="tech-fill" style="width:0%;"></div></div> <span id="tech-val">0</span></div>
-      <div class="skill-row">🎨 Creativity <div class="skill-bar-bg"><div class="skill-fill" id="crea-fill" style="width:0%;"></div></div> <span id="crea-val">0</span></div>
-      <div class="skill-row">❤️ Wellness <div class="skill-bar-bg"><div class="skill-fill" id="well-fill" style="width:0%;"></div></div> <span id="well-val">0</span></div>
-      <div style="margin-top:4px;font-size:11px;">💰 $<span id="money-val">50</span> | Day <span id="day-val">1</span></div>
-    </div>
-  </div>
-  <div class="progress-indicator" id="progressIndicator" style="opacity:0;">
-    <div class="progress-circle" id="progressCircle">⏳</div>
-  </div>
-  <div class="hint-text panel" id="hint">🖱️ Click furniture to interact • Drag to rotate room</div>
-  <div class="bottombar">
-    <div class="panel story-msg" id="story">🏠 Click on furniture to start designing your future!</div>
-    <button class="btn primary" id="resetBtn">🔄 New Life</button>
-  </div>
-</div>
-
-<script>
-  // ===== MY FUTURE ROOM – 3D Mini Sims with Character & Sound =====
+  <div class="game-container" id="game-container"></div>
   
-  const statusEl = document.getElementById('story');
-  const hintEl = document.getElementById('hint');
-  const progressIndicator = document.getElementById('progressIndicator');
-  const progressCircle = document.getElementById('progressCircle');
-  const soundBtn = document.getElementById('soundBtn');
+  <!-- External Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  
+  <!-- ============================================ -->
+  <!-- JAVASCRIPT GAME LOGIC                         -->
+  <!-- ============================================ -->
+  <script>
+    // =============================================
+    // SECTION 1: AUDIO SYSTEM
+    // =============================================
+    const AudioSystem = {
+      ctx: null,
+      enabled: true,
+      
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      },
+      
+      play(frequency, type = 'sine', duration = 0.15, volume = 0.3, delay = 0) {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.frequency.value = frequency;
+          osc.type = type;
+          const startTime = this.ctx.currentTime + delay;
+          gain.gain.setValueAtTime(volume, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+          osc.start(startTime);
+          osc.stop(startTime + duration);
+        } catch (e) {
+          // Silently fail
+        }
+      },
+      
+      click() { this.play(800, 'sine', 0.1, 0.2); },
+      footstep() { this.play(60 + Math.random() * 40, 'sine', 0.05, 0.08); },
+      actionStart() { this.play(440, 'triangle', 0.2, 0.3); this.play(660, 'triangle', 0.2, 0.3); },
+      actionComplete() { this.play(523, 'sine', 0.15, 0.3); this.play(659, 'sine', 0.15, 0.3, 0.1); this.play(784, 'sine', 0.2, 0.4, 0.2); },
+      upgrade() { this.play(330, 'sawtooth', 0.3, 0.2); this.play(440, 'sawtooth', 0.3, 0.2, 0.15); this.play(660, 'sawtooth', 0.4, 0.3, 0.3); },
+      sleep() { this.play(200, 'sine', 0.8, 0.15); },
+      achievement() { this.play(523, 'sine', 0.1, 0.3); this.play(659, 'sine', 0.1, 0.3, 0.1); this.play(784, 'sine', 0.1, 0.3, 0.2); this.play(1047, 'sine', 0.2, 0.4, 0.3); },
+      eventGood() { this.play(440, 'sine', 0.1, 0.3); this.play(554, 'sine', 0.1, 0.3, 0.1); this.play(659, 'sine', 0.15, 0.3, 0.2); },
+      eventBad() { this.play(200, 'sawtooth', 0.3, 0.15); this.play(150, 'sawtooth', 0.3, 0.15, 0.15); },
+      toggle() { this.enabled = !this.enabled; return this.enabled; }
+    };
 
-  // --- Audio Context for Sound Effects ---
-  let audioCtx = null;
-  let soundEnabled = true;
-
-  function initAudio() {
-    if (!audioCtx) {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    if (audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-  }
-
-  function playSound(frequency, type = 'sine', duration = 0.15, volume = 0.3) {
-    if (!soundEnabled || !audioCtx) return;
-    try {
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-      oscillator.frequency.value = frequency;
-      oscillator.type = type;
-      gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-      oscillator.start(audioCtx.currentTime);
-      oscillator.stop(audioCtx.currentTime + duration);
-    } catch (e) {
-      // Silently fail if audio context isn't ready
-    }
-  }
-
-  function playClickSound() { playSound(800, 'sine', 0.1, 0.2); }
-  function playActionSound() { playSound(440, 'triangle', 0.2, 0.3); playSound(660, 'triangle', 0.2, 0.3); }
-  function playCompleteSound() { playSound(523, 'sine', 0.15, 0.3); setTimeout(() => playSound(659, 'sine', 0.15, 0.3), 100); setTimeout(() => playSound(784, 'sine', 0.2, 0.4), 200); }
-  function playUpgradeSound() { playSound(330, 'sawtooth', 0.3, 0.2); setTimeout(() => playSound(440, 'sawtooth', 0.3, 0.2), 150); setTimeout(() => playSound(660, 'sawtooth', 0.4, 0.3), 300); }
-  function playFootstepSound() { playSound(100 + Math.random() * 50, 'sine', 0.05, 0.1); }
-  function playSleepSound() { playSound(200, 'sine', 0.5, 0.2); }
-
-  soundBtn.addEventListener('click', () => {
-    initAudio();
-    soundEnabled = !soundEnabled;
-    soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-    if (soundEnabled) playClickSound();
-  });
-
-  // Initialize audio on first user interaction
-  document.addEventListener('click', initAudio, { once: true });
-  document.addEventListener('pointerdown', initAudio, { once: true });
-
-  // --- Game State ---
-  let skills = { education: 0, tech: 0, creativity: 0, wellness: 0 };
-  let needs = { hunger: 100, energy: 100, fun: 100 };
-  let money = 50;
-  let day = 1;
-  let dayTimer = 0;
-  const DAY_LENGTH = 600;
-  const NEED_DECAY = 0.025;
-  let actionTimer = 0;
-  let currentAction = null;
-  const ACTION_DURATION = 100;
-  let roomLevel = 0;
-  const upgradeThresholds = [20, 50, 100, 160];
-
-  // --- Three.js Setup ---
-  const scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0xdfe8f2, 20, 45);
-  const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 100);
-  camera.position.set(8, 10, 8);
-  camera.lookAt(4, 0.5, 4);
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(innerWidth, innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
-  renderer.domElement.style.position = 'fixed';
-  renderer.domElement.style.inset = '0';
-  document.body.prepend(renderer.domElement);
-
-  scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-  const sun = new THREE.DirectionalLight(0xfff2dd, 0.5);
-  sun.position.set(5, 10, 3);
-  scene.add(sun);
-  const ceilingLight = new THREE.PointLight(0xfff0cf, 1.5, 18, 1.6);
-  ceilingLight.position.set(4, 7.2, 4);
-  scene.add(ceilingLight);
-
-  const room = new THREE.Group();
-  scene.add(room);
-  let roomYaw = 0;
-  let targetYaw = 0;
-  let dragging = false;
-  let dragStartX = 0;
-
-  const raycaster = new THREE.Raycaster();
-  const pointer = new THREE.Vector2();
-  const interactive = [];
-  const furnitureItems = {};
-  const furnitureDataMap = {};
-
-  // --- Character ---
-  let character;
-  let characterTarget = null;
-  let characterMoving = false;
-  const MOVE_SPEED = 0.08;
-  let walkCycle = 0;
-
-  function createCharacter() {
-    const group = new THREE.Group();
-    
-    // Body
-    const bodyGeo = new THREE.CylinderGeometry(0.2, 0.25, 0.7, 8);
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x4499dd, roughness: 0.6 });
-    const body = new THREE.Mesh(bodyGeo, bodyMat);
-    body.position.y = 0.45;
-    group.add(body);
-    
-    // Shirt detail
-    const shirtGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.3, 8);
-    const shirtMat = new THREE.MeshStandardMaterial({ color: 0x5599ee, roughness: 0.5 });
-    const shirt = new THREE.Mesh(shirtGeo, shirtMat);
-    shirt.position.y = 0.55;
-    group.add(shirt);
-    
-    // Head
-    const headGeo = new THREE.SphereGeometry(0.18, 16, 16);
-    const headMat = new THREE.MeshStandardMaterial({ color: 0xffd4a3, roughness: 0.7 });
-    const head = new THREE.Mesh(headGeo, headMat);
-    head.position.y = 0.95;
-    group.add(head);
-    
-    // Hair
-    const hairGeo = new THREE.SphereGeometry(0.19, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2);
-    const hairMat = new THREE.MeshStandardMaterial({ color: 0x4a3728, roughness: 0.8 });
-    const hair = new THREE.Mesh(hairGeo, hairMat);
-    hair.position.y = 0.98;
-    group.add(hair);
-    
-    // Eyes
-    const eyeGeo = new THREE.SphereGeometry(0.03, 8, 8);
-    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
-    const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-    leftEye.position.set(-0.06, 0.98, 0.16);
-    group.add(leftEye);
-    const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-    rightEye.position.set(0.06, 0.98, 0.16);
-    group.add(rightEye);
-    
-    // Mouth
-    const mouthGeo = new THREE.TorusGeometry(0.04, 0.01, 8, 8, Math.PI);
-    const mouthMat = new THREE.MeshStandardMaterial({ color: 0xcc6644 });
-    const mouth = new THREE.Mesh(mouthGeo, mouthMat);
-    mouth.position.set(0, 0.91, 0.17);
-    mouth.rotation.z = Math.PI;
-    group.add(mouth);
-    
-    // Arms
-    const armGeo = new THREE.CylinderGeometry(0.06, 0.07, 0.5, 8);
-    const armMat = new THREE.MeshStandardMaterial({ color: 0x4499dd, roughness: 0.6 });
-    
-    const leftArm = new THREE.Mesh(armGeo, armMat);
-    leftArm.position.set(-0.25, 0.6, 0);
-    leftArm.rotation.z = 0.3;
-    group.add(leftArm);
-    leftArm.userData = { name: 'leftArm' };
-    
-    const rightArm = new THREE.Mesh(armGeo, armMat);
-    rightArm.position.set(0.25, 0.6, 0);
-    rightArm.rotation.z = -0.3;
-    group.add(rightArm);
-    rightArm.userData = { name: 'rightArm' };
-    
-    // Hands
-    const handGeo = new THREE.SphereGeometry(0.06, 8, 8);
-    const handMat = new THREE.MeshStandardMaterial({ color: 0xffd4a3, roughness: 0.7 });
-    const leftHand = new THREE.Mesh(handGeo, handMat);
-    leftHand.position.set(-0.35, 0.35, 0);
-    group.add(leftHand);
-    const rightHand = new THREE.Mesh(handGeo, handMat);
-    rightHand.position.set(0.35, 0.35, 0);
-    group.add(rightHand);
-    
-    // Legs
-    const legGeo = new THREE.CylinderGeometry(0.08, 0.09, 0.4, 8);
-    const legMat = new THREE.MeshStandardMaterial({ color: 0x335577, roughness: 0.7 });
-    
-    const leftLeg = new THREE.Mesh(legGeo, legMat);
-    leftLeg.position.set(-0.1, 0.15, 0);
-    group.add(leftLeg);
-    leftLeg.userData = { name: 'leftLeg' };
-    
-    const rightLeg = new THREE.Mesh(legGeo, legMat);
-    rightLeg.position.set(0.1, 0.15, 0);
-    group.add(rightLeg);
-    rightLeg.userData = { name: 'rightLeg' };
-    
-    // Shoes
-    const shoeGeo = new THREE.BoxGeometry(0.1, 0.06, 0.15);
-    const shoeMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.8 });
-    const leftShoe = new THREE.Mesh(shoeGeo, shoeMat);
-    leftShoe.position.set(-0.1, 0.0, 0.03);
-    group.add(leftShoe);
-    const rightShoe = new THREE.Mesh(shoeGeo, shoeMat);
-    rightShoe.position.set(0.1, 0.0, 0.03);
-    group.add(rightShoe);
-    
-    // Shadow
-    const shadowGeo = new THREE.PlaneGeometry(0.5, 0.3);
-    const shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3 });
-    const shadow = new THREE.Mesh(shadowGeo, shadowMat);
-    shadow.rotation.x = -Math.PI / 2;
-    shadow.position.y = 0.01;
-    group.add(shadow);
-    
-    group.position.set(4, 0, 4);
-    return group;
-  }
-
-  character = createCharacter();
-  room.add(character);
-
-  // --- Materials ---
-  function makeTexture(drawFn, w = 256, h = 256) {
-    const c = document.createElement('canvas');
-    c.width = w;
-    c.height = h;
-    const ctx = c.getContext('2d');
-    drawFn(ctx, w, h);
-    const t = new THREE.CanvasTexture(c);
-    t.wrapS = t.wrapT = THREE.RepeatWrapping;
-    return t;
-  }
-
-  const wallTex = makeTexture((ctx, w, h) => {
-    ctx.fillStyle = '#eadcc4';
-    ctx.fillRect(0, 0, w, h);
-    for (let y = 0; y < h; y += 14) {
-      ctx.fillStyle = 'rgba(255,255,255,.06)';
-      ctx.fillRect(0, y, w, 1);
-    }
-  });
-  const floorTex = makeTexture((ctx, w, h) => {
-    ctx.fillStyle = '#a26f43';
-    ctx.fillRect(0, 0, w, h);
-    for (let x = 0; x < w; x += 64) {
-      ctx.fillStyle = 'rgba(55,31,14,.35)';
-      ctx.fillRect(x + 2, 0, 12, h);
-    }
-  });
-  floorTex.repeat.set(2, 2);
-
-  // --- Build Room ---
-  function plane(w, h, tex, color, rotX = -Math.PI / 2, y = 0) {
-    const m = new THREE.MeshStandardMaterial({ map: tex, color, roughness: 1 });
-    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m);
-    mesh.rotation.x = rotX;
-    mesh.position.y = y;
-    mesh.receiveShadow = true;
-    return mesh;
-  }
-
-  room.add(plane(8, 8, floorTex, 0xffffff));
-  const ceiling = plane(8, 8, wallTex, 0xffffff, Math.PI / 2, 3.2);
-  ceiling.rotation.z = Math.PI;
-  room.add(ceiling);
-
-  const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, color: 0xffffff, roughness: 1 });
-  [
-    [4, 1.6, 0, 0],
-    [4, 1.6, 8, Math.PI],
-    [0, 1.6, 4, Math.PI / 2],
-    [8, 1.6, 4, -Math.PI / 2]
-  ].forEach(([x, y, z, ry]) => {
-    const w = new THREE.Mesh(new THREE.PlaneGeometry(8, 3.2), wallMat);
-    w.position.set(x, y, z);
-    w.rotation.y = ry;
-    room.add(w);
-  });
-
-  // Window
-  const winFrame = new THREE.Mesh(new THREE.BoxGeometry(2.1, 1.6, 0.08), new THREE.MeshStandardMaterial({ color: 0xf5efe8 }));
-  winFrame.position.set(0.06, 1.8, 4.2);
-  winFrame.rotation.y = Math.PI / 2;
-  room.add(winFrame);
-  const winGlass = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 1.2), new THREE.MeshStandardMaterial({ color: 0x9dd6ff, transparent: true, opacity: 0.8, emissive: 0x88bbff, emissiveIntensity: 0.3 }));
-  winGlass.position.set(0.08, 1.8, 4.2);
-  winGlass.rotation.y = Math.PI / 2;
-  room.add(winGlass);
-
-  function addBaseboard(x, z, ry) {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(8, 0.12, 0.08), new THREE.MeshStandardMaterial({ color: 0xb68d63, roughness: 0.9 }));
-    m.position.set(x, 0.06, z);
-    m.rotation.y = ry;
-    room.add(m);
-  }
-  addBaseboard(4, 0.04, 0);
-  addBaseboard(4, 7.96, 0);
-  addBaseboard(0.04, 4, Math.PI / 2);
-  addBaseboard(7.96, 4, Math.PI / 2);
-
-  // --- Furniture Definitions ---
-  const furnitureDefs = [
-    { key: 'bookshelf', name: 'Bookshelf', icon: '📚', action: 'Study', skill: 'education', skillGain: 2, needEffect: { fun: -5, energy: -8 }, moneyGain: 0, pos: [2, 1, 3.8], rot: 0.1, standPos: [2, 0, 3.2] },
-    { key: 'desk', name: 'Computer Desk', icon: '💻', action: 'Work', skill: 'tech', skillGain: 2, needEffect: { fun: -3, energy: -10 }, moneyGain: 15, pos: [5, 0, 3.8], rot: -0.12, standPos: [5, 0, 3.2] },
-    { key: 'easel', name: 'Easel', icon: '🎨', action: 'Paint', skill: 'creativity', skillGain: 2, needEffect: { fun: 10, energy: -5 }, moneyGain: 0, pos: [6, 0, 5.2], rot: -0.55, standPos: [6, 0, 5.8] },
-    { key: 'mat', name: 'Yoga Mat', icon: '🧘', action: 'Exercise', skill: 'wellness', skillGain: 2, needEffect: { energy: -12, fun: 2 }, moneyGain: 0, pos: [2, 0.03, 5.5], rot: 0.25, standPos: [2, 0, 5.8] },
-    { key: 'fridge', name: 'Fridge', icon: '🍎', action: 'Eat', skill: null, skillGain: 0, needEffect: { hunger: 35, energy: 5 }, moneyGain: 0, pos: [1, 0.9, 1.8], rot: 0.04, standPos: [1, 0, 2.3] },
-    { key: 'bed', name: 'Bed', icon: '🛏️', action: 'Sleep', skill: null, skillGain: 0, needEffect: { energy: 40, hunger: -5 }, moneyGain: 0, pos: [4, 0, 5.5], rot: 0, standPos: [4, 0, 6.1] },
-    { key: 'radio', name: 'Radio', icon: '📻', action: 'Listen Music', skill: null, skillGain: 0, needEffect: { fun: 25, energy: -3 }, moneyGain: 0, pos: [7, 0.22, 1.8], rot: -0.1, standPos: [7, 0, 2.3] },
-  ];
-
-  // --- Furniture 3D Models ---
-  function createBookshelf() {
-    const g = new THREE.Group();
-    const wood = new THREE.MeshStandardMaterial({ color: 0x8a5b33, roughness: 0.9 });
-    g.add(new THREE.Mesh(new THREE.BoxGeometry(1.3, 2.0, 0.35), wood));
-    for (let i = 0; i < 3; i++) {
-      const s = new THREE.Mesh(new THREE.BoxGeometry(1.18, 0.05, 0.28), wood);
-      s.position.y = -0.65 + i * 0.62;
-      g.add(s);
-      for (let b = 0; b < 6; b++) {
-        const book = new THREE.Mesh(new THREE.BoxGeometry(0.12 + Math.random() * 0.08, 0.3 + Math.random() * 0.25, 0.16), new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(Math.random(), 0.55, 0.55) }));
-        book.position.set(-0.45 + b * 0.17, -0.45 + i * 0.62 + book.geometry.parameters.height / 2, (Math.random() - 0.5) * 0.03);
-        g.add(book);
+    // =============================================
+    // SECTION 2: PARTICLE SYSTEM
+    // =============================================
+    const ParticleSystem = {
+      particles: [],
+      
+      emit(x, y, count, color, speed = 2, life = 30) {
+        for (let i = 0; i < count; i++) {
+          this.particles.push({
+            x, y,
+            vx: (Math.random() - 0.5) * speed * 2,
+            vy: (Math.random() - 1) * speed * 2,
+            life: life + Math.random() * 20,
+            maxLife: life + 20,
+            color,
+            size: 2 + Math.random() * 3
+          });
+        }
+      },
+      
+      emitSparkles(x, y, count = 8) {
+        this.emit(x, y, count, [255, 215, 0], 1.5, 25);
+      },
+      
+      emitConfetti(x, y, count = 20) {
+        const colors = [[255, 100, 100], [100, 255, 100], [100, 100, 255], [255, 255, 100], [255, 100, 255]];
+        for (let i = 0; i < count; i++) {
+          const col = colors[Math.floor(Math.random() * colors.length)];
+          this.emit(x, y - 50, 1, col, 3, 40);
+        }
+      },
+      
+      update() {
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.05; // gravity
+          p.life--;
+          if (p.life <= 0) this.particles.splice(i, 1);
+        }
+      },
+      
+      draw() {
+        noStroke();
+        for (const p of this.particles) {
+          const alpha = map(p.life, 0, p.maxLife, 0, 255);
+          fill(p.color[0], p.color[1], p.color[2], alpha);
+          ellipse(p.x, p.y, p.size);
+        }
       }
-    }
-    return g;
-  }
-  function createDesk() {
-    const g = new THREE.Group();
-    const wood = new THREE.MeshStandardMaterial({ color: 0x6f4a2f, roughness: 0.9 });
-    [
-      [-0.8, 0.5, -0.3],
-      [0.8, 0.5, -0.3],
-      [-0.8, 0.5, 0.3],
-      [0.8, 0.5, 0.3]
-    ].forEach(p => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1, 0.1), wood); l.position.set(...p); g.add(l); });
-    const top = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.12, 0.8), wood);
-    top.position.y = 1.0;
-    g.add(top);
-    const mon = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.55, 0.08), new THREE.MeshStandardMaterial({ color: 0x111318, emissive: 0x55ccff, emissiveIntensity: 1.6 }));
-    mon.position.set(0, 1.38, -0.14);
-    g.add(mon);
-    const chair = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.32, 0.08, 16), new THREE.MeshStandardMaterial({ color: 0x34404f }));
-    chair.position.set(0, -0.02, 0.65);
-    g.add(chair);
-    return g;
-  }
-  function createEasel() {
-    const g = new THREE.Group();
-    const wood = new THREE.MeshStandardMaterial({ color: 0xa07143 });
-    [
-      [-0.28, 0.9, 0],
-      [0.28, 0.9, 0],
-      [0, 0.45, 0.12]
-    ].forEach(p => { const l = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.8, 8), wood); l.position.set(...p); if (p[0] !== 0) l.rotation.z = p[0] < 0 ? 0.18 : -0.18; if (p[2] !== 0) l.rotation.x = -0.2; g.add(l); });
-    const canvas = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 1.1), new THREE.MeshStandardMaterial({ color: 0xf8f1df, emissive: 0xffffff, emissiveIntensity: 0.05 }));
-    canvas.position.set(0, 1.22, 0.09);
-    g.add(canvas);
-    return g;
-  }
-  function createMat() {
-    const g = new THREE.Group();
-    g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 1.5, 18, 1, true), new THREE.MeshStandardMaterial({ color: 0x3db36a })).rotation.z = Math.PI / 2);
-    return g;
-  }
-  function createFridge() {
-    return new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.8, 0.75), new THREE.MeshStandardMaterial({ color: 0xe9edf2, metalness: 0.1, roughness: 0.5 }));
-  }
-  function createBed() {
-    const g = new THREE.Group();
-    g.add(new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.35, 1.0), new THREE.MeshStandardMaterial({ color: 0x8b5d37 })).position.y = 0.18);
-    g.add(new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.28, 0.92), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.95 })).position.y = 0.37);
-    const blanket = new THREE.Mesh(new THREE.BoxGeometry(1.68, 0.16, 0.84), new THREE.MeshStandardMaterial({ color: 0xb2c8ff }));
-    blanket.position.set(0, 0.53, 0.05);
-    g.add(blanket);
-    return g;
-  }
-  function createRadio() {
-    const g = new THREE.Group();
-    g.add(new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.35, 0.28), new THREE.MeshStandardMaterial({ color: 0x7d4a2c })));
-    const dial = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.03, 18), new THREE.MeshStandardMaterial({ color: 0xffd65c }));
-    dial.rotation.x = Math.PI / 2;
-    dial.position.set(0.18, 0.08, -0.12);
-    g.add(dial);
-    return g;
-  }
+    };
 
-  const modelCreators = {
-    bookshelf: createBookshelf,
-    desk: createDesk,
-    easel: createEasel,
-    mat: createMat,
-    fridge: createFridge,
-    bed: createBed,
-    radio: createRadio,
-  };
-
-  // --- Place Furniture ---
-  furnitureDefs.forEach(def => {
-    const model = modelCreators[def.key]();
-    model.position.set(...def.pos);
-    model.rotation.y = def.rot;
-    model.userData = def;
-    room.add(model);
-    interactive.push(model);
-    furnitureItems[def.key] = model;
-    furnitureDataMap[def.key] = def;
-  });
-
-  // --- Interaction ---  function onPointerDown(e) {
-    initAudio();
-    if (currentAction) return;
-    dragging = true;
-    dragStartX = e.clientX;
-    pointer.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
-    raycaster.setFromCamera(pointer, camera);
-    const hits = raycaster.intersectObjects(interactive, true);
-    if (hits.length > 0) {
-      const root = interactive.find(r => r === hits[0].object || r.children.includes(hits[0].object));
-      if (root && root.userData) {
-        playClickSound();
-        startAction(root);
+    // =============================================
+    // SECTION 3: FLOATING TEXT SYSTEM
+    // =============================================
+    const FloatingTextSystem = {
+      texts: [],
+      
+      add(x, y, text, color = [255, 255, 200], size = 14) {
+        this.texts.push({
+          x, y,
+          text,
+          color,
+          size,
+          life: 80,
+          maxLife: 80,
+          vy: -1.5
+        });
+      },
+      
+      addSkillGain(x, y, skill, amount) {
+        const skillColors = {
+          education: [100, 180, 255],
+          tech: [100, 200, 200],
+          creativity: [255, 150, 200],
+          wellness: [100, 220, 150]
+        };
+        const col = skillColors[skill] || [255, 215, 0];
+        this.add(x, y - 30, `+${amount} ${skill.charAt(0).toUpperCase() + skill.slice(1)}`, col, 13);
+      },
+      
+      addMoneyGain(x, y, amount) {
+        this.add(x, y - 20, `+$${amount}`, [255, 215, 0], 12);
+      },
+      
+      update() {
+        for (let i = this.texts.length - 1; i >= 0; i--) {
+          const t = this.texts[i];
+          t.y += t.vy;
+          t.life--;
+          if (t.life <= 0) this.texts.splice(i, 1);
+        }
+      },
+      
+      draw() {
+        for (const t of this.texts) {
+          const alpha = map(t.life, 0, t.maxLife, 0, 255);
+          fill(t.color[0], t.color[1], t.color[2], alpha);
+          textSize(t.size);
+          textAlign(CENTER);
+          text(t.text, t.x, t.y);
+        }
       }
-    }
-  }
+    };
 
-  function onPointerMove(e) {
-    if (!dragging) return;
-    const dx = e.clientX - dragStartX;
-    targetYaw = THREE.MathUtils.clamp(roomYaw + dx * 0.005, -Math.PI / 6, Math.PI / 6);
-  }
-
-  function onPointerUp() {
-    dragging = false;
-  }
-
-  window.addEventListener('pointerdown', onPointerDown);
-  window.addEventListener('pointermove', onPointerMove);
-  window.addEventListener('pointerup', onPointerUp);
-
-  // --- Character Movement ---
-  function moveCharacterTo(targetPos) {
-    characterTarget = new THREE.Vector3(...targetPos);
-    characterMoving = true;
-  }
-
-  function updateCharacterMovement() {
-    if (!characterMoving || !characterTarget) return;
-    
-    const dx = characterTarget.x - character.position.x;
-    const dz = characterTarget.z - character.position.z;
-    const dist = Math.sqrt(dx * dx + dz * dz);
-    
-    if (dist < 0.15) {
-      character.position.x = characterTarget.x;
-      character.position.z = characterTarget.z;
-      characterMoving = false;
-      characterTarget = null;
-      walkCycle = 0;
-    } else {
-      character.position.x += (dx / dist) * MOVE_SPEED;
-      character.position.z += (dz / dist) * MOVE_SPEED;
+    // =============================================
+    // SECTION 4: ACHIEVEMENT SYSTEM
+    // =============================================
+    const AchievementSystem = {
+      achievements: [
+        { id: 'bookworm', name: '📚 Bookworm', desc: 'Education level 10', check: (s) => s.education >= 10, unlocked: false },
+        { id: 'techie', name: '💻 Techie', desc: 'Earn $200 total', check: (s, m) => m >= 200, unlocked: false, trackMoney: true },
+        { id: 'artist', name: '🎨 Artist', desc: 'Creativity level 10', check: (s) => s.creativity >= 10, unlocked: false },
+        { id: 'yogi', name: '🧘 Yogi', desc: 'Wellness level 10', check: (s) => s.wellness >= 10, unlocked: false },
+        { id: 'balanced', name: '⚖️ Balanced Life', desc: 'All skills above 5', check: (s) => s.education >= 5 && s.tech >= 5 && s.creativity >= 5 && s.wellness >= 5, unlocked: false },
+        { id: 'rich', name: '💰 Wealth Builder', desc: 'Save $500', check: (s, m) => m >= 500, unlocked: false, trackMoney: true },
+        { id: 'survivor', name: '🏆 Survivor', desc: 'Reach Day 20', check: (s, m, d) => d >= 20, unlocked: false, trackDay: true },
+        { id: 'designer', name: '✨ Future Designer', desc: 'Room Level 4', check: (s, m, d, r) => r >= 4, unlocked: false, trackRoom: true },
+      ],
+      recentlyUnlocked: null,
+      recentTimer: 0,
+      totalMoneyEarned: 0,
       
-      // Rotate character to face direction
-      const angle = Math.atan2(dx, dz);
-      character.rotation.y = angle;
+      check(skills, money, day, roomLevel) {
+        for (const ach of this.achievements) {
+          if (!ach.unlocked) {
+            let result = false;
+            if (ach.trackMoney) result = ach.check(skills, this.totalMoneyEarned);
+            else if (ach.trackDay) result = ach.check(skills, money, day);
+            else if (ach.trackRoom) result = ach.check(skills, money, day, roomLevel);
+            else result = ach.check(skills);
+            
+            if (result) {
+              ach.unlocked = true;
+              this.recentlyUnlocked = ach;
+              this.recentTimer = 200;
+              AudioSystem.achievement();
+              ParticleSystem.emitConfetti(500, 300);
+              return ach;
+            }
+          }
+        }
+        return null;
+      },
       
-      // Walk animation
-      walkCycle += 0.2;
-      if (walkCycle % 10 === 0) playFootstepSound();
+      addMoney(amount) {
+        this.totalMoneyEarned += amount;
+      },
       
-      // Swing arms and legs
-      const swing = Math.sin(walkCycle) * 0.3;
-      character.children.forEach(child => {
-        if (child.userData?.name === 'leftArm') child.rotation.z = 0.3 + swing;
-        if (child.userData?.name === 'rightArm') child.rotation.z = -0.3 - swing;
-        if (child.userData?.name === 'leftLeg') child.rotation.z = swing;
-        if (child.userData?.name === 'rightLeg') child.rotation.z = -swing;
-      });
-    }
-  }
+      getUnlockedCount() {
+        return this.achievements.filter(a => a.unlocked).length;
+      },
+      
+      getTotalCount() {
+        return this.achievements.length;
+      }
+    };
 
-  // --- Gameplay ---
-  function startAction(furnitureMesh) {
-    const def = furnitureMesh.userData;
-    
-    // Move character to furniture
-    moveCharacterTo(def.standPos);
-    
-    // Wait for character to arrive, then start action
-    const checkArrival = setInterval(() => {
-      if (!characterMoving) {
-        clearInterval(checkArrival);
-        currentAction = { obj: furnitureMesh, def, timer: ACTION_DURATION, duration: ACTION_DURATION };
-        hintEl.textContent = `⏳ ${def.icon} Using ${def.name}...`;
-        progressIndicator.style.opacity = '1';
-        playActionSound();
+    // =============================================
+    // SECTION 5: RANDOM EVENTS SYSTEM
+    // =============================================
+    const EventSystem = {
+      events: [
+        { type: 'good', text: '🌟 A mentor visited! +8 Education', effect: { education: 8 }, weight: 3 },
+        { type: 'good', text: '💡 Brilliant idea! +6 Tech', effect: { tech: 6 }, weight: 3 },
+        { type: 'good', text: '🎨 Creative surge! +8 Creativity', effect: { creativity: 8 }, weight: 3 },
+        { type: 'good', text: '🧘 Peaceful morning! +8 Wellness', effect: { wellness: 8 }, weight: 3 },
+        { type: 'good', text: '💰 Found money on the street! +$30', effect: { money: 30 }, weight: 4 },
+        { type: 'good', text: '🍕 Friend brought pizza! +25 Hunger', effect: { hunger: 25 }, weight: 3 },
+        { type: 'good', text: '🎉 Surprise party! +20 Fun', effect: { fun: 20 }, weight: 3 },
+        { type: 'bad', text: '😴 Exhaustion hits! -15 Energy', effect: { energy: -15 }, weight: 3 },
+        { type: 'bad', text: '🔧 Computer crashed! -5 Tech', effect: { tech: -5 }, weight: 2 },
+        { type: 'bad', text: '💸 Unexpected bill! -$20', effect: { money: -20 }, weight: 3 },
+        { type: 'bad', text: '🤧 Got a cold! -10 Wellness', effect: { wellness: -10 }, weight: 2 },
+        { type: 'neutral', text: '📖 A quiet day for reflection...', effect: {}, weight: 5 },
+        { type: 'neutral', text: '🌤️ The weather is beautiful today.', effect: {}, weight: 5 },
+      ],
+      cooldown: 0,
+      currentEvent: null,
+      eventTimer: 0,
+      
+      tryTrigger() {
+        if (this.cooldown > 0) {
+          this.cooldown--;
+          return null;
+        }
         
-        // Visual feedback
-        gsap.fromTo(furnitureMesh.scale, { x: 1, y: 1, z: 1 }, { x: 1.15, y: 1.15, z: 1.15, duration: 0.2, yoyo: true, repeat: 1 });
-        ceilingLight.intensity = 2.0;
-        setTimeout(() => { ceilingLight.intensity = 1.5; }, 400);
+        // Random chance to trigger (roughly every 15-25 seconds)
+        if (Math.random() < 0.003) {
+          const totalWeight = this.events.reduce((sum, e) => sum + e.weight, 0);
+          let roll = Math.random() * totalWeight;
+          for (const event of this.events) {
+            roll -= event.weight;
+            if (roll <= 0) {
+              this.currentEvent = event;
+              this.eventTimer = 180;
+              this.cooldown = 300;
+              if (event.type === 'good') AudioSystem.eventGood();
+              else if (event.type === 'bad') AudioSystem.eventBad();
+              return event;
+            }
+          }
+        }
+        return null;
+      },
+      
+      applyEffect(skills, needs, money) {
+        if (!this.currentEvent) return;
+        const eff = this.currentEvent.effect;
+        if (eff.education) skills.education = constrain(skills.education + eff.education, 0, 100);
+        if (eff.tech) skills.tech = constrain(skills.tech + eff.tech, 0, 100);
+        if (eff.creativity) skills.creativity = constrain(skills.creativity + eff.creativity, 0, 100);
+        if (eff.wellness) skills.wellness = constrain(skills.wellness + eff.wellness, 0, 100);
+        if (eff.hunger) needs.hunger = constrain(needs.hunger + eff.hunger, 0, 100);
+        if (eff.energy) needs.energy = constrain(needs.energy + eff.energy, 0, 100);
+        if (eff.fun) needs.fun = constrain(needs.fun + eff.fun, 0, 100);
+        if (eff.money) money += eff.money;
       }
-    }, 100);
-  }
+    };
 
-  function completeAction() {
-    if (!currentAction) return;
-    const def = currentAction.def;
+    // =============================================
+    // SECTION 6: GOALS SYSTEM (NPC Quests)
+    // =============================================
+    const GoalSystem = {
+      goals: [
+        { text: '📚 Study 3 times', type: 'action', target: 'Study', count: 3, reward: 30, progress: 0 },
+        { text: '💻 Work 2 times', type: 'action', target: 'Work / Code', count: 2, reward: 25, progress: 0 },
+        { text: '🎨 Paint 2 times', type: 'action', target: 'Paint', count: 2, reward: 25, progress: 0 },
+        { text: '🧘 Exercise 2 times', type: 'action', target: 'Exercise', count: 2, reward: 25, progress: 0 },
+        { text: '💰 Earn $50', type: 'money', target: 50, count: 1, reward: 20, progress: 0 },
+        { text: '📈 Reach Education 5', type: 'skill', skill: 'education', target: 5, count: 1, reward: 40, progress: 0 },
+        { text: '📈 Reach Tech 5', type: 'skill', skill: 'tech', target: 5, count: 1, reward: 40, progress: 0 },
+      ],
+      activeGoal: null,
+      completed: false,
+      
+      pickNewGoal() {
+        const available = this.goals.filter(g => {
+          if (g.type === 'skill') return true; // Always available
+          return true;
+        });
+        this.activeGoal = { ...available[Math.floor(Math.random() * available.length)], progress: 0 };
+        this.completed = false;
+      },
+      
+      checkProgress(actionName, skills, moneyEarned) {
+        if (!this.activeGoal || this.completed) return false;
+        
+        if (this.activeGoal.type === 'action' && actionName === this.activeGoal.target) {
+          this.activeGoal.progress++;
+        } else if (this.activeGoal.type === 'money') {
+          this.activeGoal.progress += moneyEarned;
+        } else if (this.activeGoal.type === 'skill' && this.activeGoal.skill) {
+          this.activeGoal.progress = skills[this.activeGoal.skill];
+        }
+        
+        if (this.activeGoal.progress >= this.activeGoal.count) {
+          this.completed = true;
+          return true;
+        }
+        return false;
+      },
+      
+      getReward() {
+        return this.activeGoal ? this.activeGoal.reward : 0;
+      }
+    };
 
-    // Apply effects
-    if (def.skill && skills[def.skill] !== undefined) {
-      skills[def.skill] = Math.min(skills[def.skill] + def.skillGain, 100);
+    // =============================================
+    // SECTION 7: JOURNAL SYSTEM
+    // =============================================
+    const JournalSystem = {
+      entries: [],
+      showJournal: false,
+      
+      addEntry(text) {
+        this.entries.unshift({
+          day,
+          text,
+          timestamp: frameCount
+        });
+        // Keep only last 20 entries
+        if (this.entries.length > 20) this.entries.pop();
+      },
+      
+      generateDailySummary() {
+        const skillNames = ['education', 'tech', 'creativity', 'wellness'];
+        const highest = skillNames.reduce((a, b) => skills[a] > skills[b] ? a : b);
+        const summaries = {
+          education: 'I spent time learning today. Knowledge is power!',
+          tech: 'Technology filled my day. The future is digital!',
+          creativity: 'Art and creativity flowed through me today.',
+          wellness: 'I took care of my body and mind today.',
+        };
+        return summaries[highest] || 'Another day of growth and progress.';
+      },
+      
+      toggle() {
+        this.showJournal = !this.showJournal;
+        AudioSystem.click();
+      }
+    };
+
+    // =============================================
+    // SECTION 8: GAME STATE
+    // =============================================
+    let room = {
+      bgColor: [220, 230, 240],
+      wallColor: [245, 240, 230],
+      floorColor: [180, 160, 140],
+      upgradeLevel: 0,
+    };
+
+    let character = {
+      x: 400, y: 380,
+      targetX: 400, targetY: 380,
+      moving: false,
+      action: null,
+      actionObj: null,
+      actionTimer: 0,
+      actionDuration: 120,
+      facingRight: true,
+      walkCycle: 0,
+      idleTimer: 0,
+      blinkTimer: 0,
+      isBlinking: false,
+      sleeping: false,
+    };
+
+    let skills = {
+      education: 0,
+      tech: 0,
+      creativity: 0,
+      wellness: 0,
+    };
+    let money = 50;
+    let day = 1;
+    let dayTimer = 0;
+    const DAY_LENGTH = 600;
+
+    let needs = {
+      hunger: 100,
+      energy: 100,
+      fun: 100,
+    };
+    const NEED_DECAY = 0.03;
+
+    let objects = [];
+    let message = "Click an object to start designing your future!";
+    let messageTimer = 0;
+    let actionProgress = 0;
+    let showProgress = false;
+    const upgradeThresholds = [20, 50, 100, 160];
+
+    // Time of day
+    let timeOfDay = 0; // 0-1, 0=dawn, 0.25=noon, 0.5=dusk, 0.75=night
+    let isNighttime = false;
+
+    // Cutscene
+    let cutscene = null;
+    let cutsceneTimer = 0;
+
+    // =============================================
+    // SECTION 9: P5.JS SETUP
+    // =============================================
+    function setup() {
+      let canvas = createCanvas(1000, 600);
+      canvas.parent('game-container');
+      
+      initObjects();
+      updateRoomAppearance();
+      GoalSystem.pickNewGoal();
+      JournalSystem.addEntry('🏠 Day 1: A new beginning. I moved into my future room.');
     }
-    for (let n in def.needEffect) {
-      needs[n] = Math.max(0, Math.min(100, needs[n] + def.needEffect[n]));
+
+    function initObjects() {
+      objects = [
+        {
+          name: 'Bookshelf',
+          x: 150, y: 310, w: 60, h: 90,
+          action: 'Study',
+          skill: 'education',
+          skillGain: 2,
+          needEffect: { fun: -5, energy: -8 },
+          moneyGain: 0,
+          description: '📚 Study to gain Education',
+          color: [139, 90, 43],
+          icon: '📚',
+        },
+        {
+          name: 'Computer Desk',
+          x: 380, y: 340, w: 70, h: 50,
+          action: 'Work / Code',
+          skill: 'tech',
+          skillGain: 2,
+          needEffect: { fun: -3, energy: -10 },
+          moneyGain: 15,
+          description: '💻 Work to earn money & Tech',
+          color: [80, 80, 100],
+          icon: '💻',
+        },
+        {
+          name: 'Easel',
+          x: 620, y: 320, w: 50, h: 80,
+          action: 'Paint',
+          skill: 'creativity',
+          skillGain: 2,
+          needEffect: { fun: 10, energy: -5 },
+          moneyGain: 0,
+          description: '🎨 Paint to boost Creativity',
+          color: [200, 150, 100],
+          icon: '🎨',
+        },
+        {
+          name: 'Yoga Mat',
+          x: 800, y: 390, w: 70, h: 20,
+          action: 'Exercise',
+          skill: 'wellness',
+          skillGain: 2,
+          needEffect: { energy: -12, fun: 2 },
+          moneyGain: 0,
+          description: '🧘 Exercise for Wellness',
+          color: [100, 180, 120],
+          icon: '🧘',
+        },
+        {
+          name: 'Fridge',
+          x: 80, y: 360, w: 50, h: 60,
+          action: 'Eat',
+          skill: null,
+          skillGain: 0,
+          needEffect: { hunger: 35, energy: 5 },
+          moneyGain: 0,
+          description: '🍎 Eat to restore Hunger',
+          color: [220, 220, 220],
+          icon: '🍎',
+        },
+        {
+          name: 'Bed',
+          x: 520, y: 350, w: 100, h: 40,
+          action: 'Sleep',
+          skill: null,
+          skillGain: 0,
+          needEffect: { energy: 40, hunger: -5 },
+          moneyGain: 0,
+          description: '🛏️ Sleep to restore Energy & advance day',
+          color: [180, 140, 200],
+          icon: '🛏️',
+        },
+        {
+          name: 'Radio',
+          x: 280, y: 400, w: 40, h: 30,
+          action: 'Listen Music',
+          skill: null,
+          skillGain: 0,
+          needEffect: { fun: 25, energy: -3 },
+          moneyGain: 0,
+          description: '🎵 Relax to gain Fun',
+          color: [200, 100, 100],
+          icon: '🎵',
+        },
+      ];
     }
-    money += def.moneyGain;
-    if (money < 0) money = 0;
 
-    dayTimer += 30;
-    if (dayTimer >= DAY_LENGTH) {
-      dayTimer = 0;
-      day++;
-      statusEl.textContent = `☀️ Day ${day} – Your future grows brighter!`;
-    } else {
-      statusEl.textContent = `${def.icon} ${def.action} complete! Keep designing your future.`;
-    }
-
-    if (def.key === 'bed') {
-      playSleepSound();
-    } else {
-      playCompleteSound();
-    }
-
-    checkUpgrade();
-    updateUI();
-    currentAction = null;
-    progressIndicator.style.opacity = '0';
-    hintEl.textContent = '🖱️ Click furniture to interact • Drag to rotate room';
-  }
-
-  function checkUpgrade() {
-    const total = skills.education + skills.tech + skills.creativity + skills.wellness;
-    let newLevel = 0;
-    for (let i = upgradeThresholds.length - 1; i >= 0; i--) {
-      if (total >= upgradeThresholds[i]) { newLevel = i + 1; break; }
-    }
-    if (newLevel > roomLevel) {
-      roomLevel = newLevel;
-      scene.fog = new THREE.Fog(0xdfe8f2, 20 - roomLevel, 45 + roomLevel * 2);
-      statusEl.textContent = `✨ Room upgraded to Level ${roomLevel}!`;
-      ceilingLight.intensity = 1.5 + roomLevel * 0.2;
-      gsap.fromTo(ceilingLight, { intensity: ceilingLight.intensity + 0.8 }, { intensity: ceilingLight.intensity, duration: 0.6 });
-      playUpgradeSound();
-    }
-  }
-
-  function updateNeeds() {
-    needs.hunger = Math.max(0, needs.hunger - NEED_DECAY);
-    needs.energy = Math.max(0, needs.energy - NEED_DECAY * 1.2);
-    needs.fun = Math.max(0, needs.fun - NEED_DECAY * 0.8);
-  }
-
-  function updateUI() {
-    document.getElementById('hunger-fill').style.width = needs.hunger + '%';
-    document.getElementById('energy-fill').style.width = needs.energy + '%';
-    document.getElementById('fun-fill').style.width = needs.fun + '%';
-    document.getElementById('edu-fill').style.width = skills.education + '%';
-    document.getElementById('tech-fill').style.width = skills.tech + '%';
-    document.getElementById('crea-fill').style.width = skills.creativity + '%';
-    document.getElementById('well-fill').style.width = skills.wellness + '%';
-    document.getElementById('edu-val').textContent = skills.education;
-    document.getElementById('tech-val').textContent = skills.tech;
-    document.getElementById('crea-val').textContent = skills.creativity;
-    document.getElementById('well-val').textContent = skills.wellness;
-    document.getElementById('money-val').textContent = money;
-    document.getElementById('day-val').textContent = day;
-    
-    if (currentAction) {
-      const progress = 1 - (currentAction.timer / currentAction.duration);
-      progressCircle.textContent = ['⏳', '⌛', '🔄', '⏰'][Math.floor(progress * 4)] || '⏳';
-    }
-  }
-
-  function resetGame() {
-    skills = { education: 0, tech: 0, creativity: 0, wellness: 0 };
-    needs = { hunger: 100, energy: 100, fun: 100 };
-    money = 50;
-    day = 1;
-    dayTimer = 0;
-    roomLevel = 0;
-    currentAction = null;
-    characterMoving = false;
-    characterTarget = null;
-    room.rotation.y = 0;
-    roomYaw = 0;
-    targetYaw = 0;
-    scene.fog = new THREE.Fog(0xdfe8f2, 20, 45);
-    ceilingLight.intensity = 1.5;
-    character.position.set(4, 0, 4);
-    character.rotation.y = 0;
-    progressIndicator.style.opacity = '0';
-    statusEl.textContent = '🏠 New life! Click furniture to design your future.';
-    hintEl.textContent = '🖱️ Click furniture to interact • Drag to rotate room';
-    updateUI();
-  }
-
-  document.getElementById('resetBtn').addEventListener('click', resetGame);
-
-  window.addEventListener('resize', () => {
-    camera.aspect = innerWidth / innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth, innerHeight);
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  });
-
-  // --- Game Loop ---
-  function animate() {
-    requestAnimationFrame(animate);
-
-    // Update character movement
-    updateCharacterMovement();
-
-    // Update action timer
-    if (currentAction) {
-      currentAction.timer--;
-      if (currentAction.timer <= 0) {
-        completeAction();
+    // =============================================
+    // SECTION 10: MOUSE INTERACTION
+    // =============================================
+    function mousePressed() {
+      AudioSystem.init();
+      
+      // Check for journal toggle (top-right corner)
+      if (mouseX > width - 60 && mouseY < 60) {
+        JournalSystem.toggle();
+        return;
+      }
+      
+      // Check for sound toggle
+      if (mouseX > width - 110 && mouseY < 60 && mouseX < width - 65) {
+        const enabled = AudioSystem.toggle();
+        message = enabled ? '🔊 Sound ON' : '🔇 Sound OFF';
+        messageTimer = 120;
+        return;
+      }
+      
+      if (JournalSystem.showJournal) {
+        JournalSystem.showJournal = false;
+        return;
+      }
+      
+      if (character.moving || character.action) return;
+      if (cutscene) return;
+      
+      // Check if clicked on any object
+      for (let obj of objects) {
+        if (mouseX > obj.x && mouseX < obj.x + obj.w &&
+            mouseY > obj.y && mouseY < obj.y + obj.h) {
+          AudioSystem.click();
+          let targetX = obj.x + obj.w/2;
+          let targetY = obj.y - 30;
+          startCharacterAction(obj, targetX, targetY);
+          return;
+        }
       }
     }
 
-    // Needs decay (only when not sleeping)
-    if (!currentAction || currentAction.def.key !== 'bed') {
+    function startCharacterAction(obj, tx, ty) {
+      if (character.moving || character.action) return;
+      
+      character.targetX = tx;
+      character.targetY = ty;
+      character.moving = true;
+      character.actionObj = obj;
+    }
+
+    function performAction() {
+      let obj = character.actionObj;
+      if (!obj) return;
+      
+      // Apply skill gain
+      if (obj.skill && skills[obj.skill] !== undefined) {
+        const oldSkill = skills[obj.skill];
+        skills[obj.skill] = min(skills[obj.skill] + obj.skillGain, 100);
+        if (skills[obj.skill] > oldSkill) {
+          FloatingTextSystem.addSkillGain(character.x, character.y, obj.skill, obj.skillGain);
+          ParticleSystem.emitSparkles(character.x, character.y - 30);
+        }
+      }
+      
+      // Apply need effects
+      for (let need in obj.needEffect) {
+        needs[need] = constrain(needs[need] + obj.needEffect[need], 0, 100);
+      }
+      
+      // Money
+      if (obj.moneyGain > 0) {
+        money += obj.moneyGain;
+        AchievementSystem.addMoney(obj.moneyGain);
+        FloatingTextSystem.addMoneyGain(character.x, character.y, obj.moneyGain);
+      }
+      if (money < 0) money = 0;
+      
+      // Check goals
+      const goalCompleted = GoalSystem.checkProgress(obj.action, skills, obj.moneyGain);
+      if (goalCompleted) {
+        const reward = GoalSystem.getReward();
+        money += reward;
+        message = `✅ Goal complete! +$${reward} reward!`;
+        messageTimer = 240;
+        ParticleSystem.emitConfetti(500, 300);
+        AudioSystem.achievement();
+        GoalSystem.pickNewGoal();
+      }
+      
+      // Check achievements
+      const ach = AchievementSystem.check(skills, money, day, room.upgradeLevel);
+      if (ach) {
+        message = `🏆 Achievement: ${ach.name}!`;
+        messageTimer = 300;
+      }
+      
+      // Message
+      message = obj.description;
+      messageTimer = 180;
+      
+      // Check upgrades
+      checkRoomUpgrade();
+      
+      // Handle sleep
+      if (obj.action === 'Sleep') {
+        character.sleeping = true;
+        AudioSystem.sleep();
+        cutscene = 'sleeping';
+        cutsceneTimer = 180;
+        JournalSystem.addEntry(`😴 Day ${day}: ${JournalSystem.generateDailySummary()}`);
+      }
+      
+      // Advance day timer
+      dayTimer += 30;
+      if (dayTimer >= DAY_LENGTH) {
+        dayTimer = 0;
+        day++;
+        message = `☀️ Day ${day} - Your future grows brighter!`;
+        messageTimer = 240;
+        timeOfDay = 0;
+        JournalSystem.addEntry(`☀️ Day ${day}: ${JournalSystem.generateDailySummary()}`);
+      }
+      
+      // Update time of day
+      timeOfDay = (timeOfDay + 0.08) % 1;
+      isNighttime = timeOfDay > 0.6;
+      
+      AudioSystem.actionComplete();
+    }
+
+    function checkRoomUpgrade() {
+      let total = skills.education + skills.tech + skills.creativity + skills.wellness;
+      let newLevel = 0;
+      for (let i = upgradeThresholds.length - 1; i >= 0; i--) {
+        if (total >= upgradeThresholds[i]) {
+          newLevel = i + 1;
+          break;
+        }
+      }
+      if (newLevel > room.upgradeLevel) {
+        room.upgradeLevel = newLevel;
+        updateRoomAppearance();
+        message = `✨ Room upgraded to Level ${newLevel}!`;
+        messageTimer = 300;
+        ParticleSystem.emitConfetti(500, 200);
+        AudioSystem.upgrade();
+        cutscene = 'upgrade';
+        cutsceneTimer = 120;
+        JournalSystem.addEntry(`✨ Room upgraded to Level ${newLevel}!`);
+      }
+    }
+
+    function updateRoomAppearance() {
+      let lvl = room.upgradeLevel;
+      room.wallColor = [
+        lerp(245, 255, lvl/4),
+        lerp(240, 248, lvl/4),
+        lerp(230, 240, lvl/4)
+      ];
+      room.floorColor = [
+        lerp(180, 210, lvl/4),
+        lerp(160, 190, lvl/4),
+        lerp(140, 170, lvl/4)
+      ];
+      room.bgColor = [
+        lerp(220, 190, lvl/4),
+        lerp(230, 210, lvl/4),
+        lerp(240, 230, lvl/4)
+      ];
+    }
+
+    // =============================================
+    // SECTION 11: GAME LOOP
+    // =============================================
+    function draw() {
+      // Handle night overlay
+      if (isNighttime) {
+        background(
+          lerp(room.bgColor[0], 30, 0.5),
+          lerp(room.bgColor[1], 40, 0.5),
+          lerp(room.bgColor[2], 60, 0.5)
+        );
+      } else {
+        background(room.bgColor);
+      }
+      
+      // Handle cutscenes
+      if (cutscene) {
+        handleCutscene();
+        drawUI();
+        return;
+      }
+      
+      // Update systems
       updateNeeds();
+      updateCharacter();
+      ParticleSystem.update();
+      FloatingTextSystem.update();
+      
+      // Random events
+      const event = EventSystem.tryTrigger();
+      if (event) {
+        EventSystem.applyEffect(skills, needs, money);
+        message = event.text;
+        messageTimer = 240;
+      }
+      
+      // Draw everything
+      drawRoom();
+      
+      for (let obj of objects) {
+        drawObject(obj);
+        drawObjectTooltip(obj);
+      }
+      
+      drawCharacter();
+      ParticleSystem.draw();
+      FloatingTextSystem.draw();
+      
+      if (showProgress && character.action) {
+        drawProgressBar();
+      }
+      
+      // Character accessories based on skills
+      drawCharacterAccessories();
+      
+      drawUI();
+      
+      // Message timer
+      if (messageTimer > 0) {
+        messageTimer--;
+        if (messageTimer <= 0) message = "";
+      }
+      
+      // Event timer
+      if (EventSystem.eventTimer > 0) {
+        EventSystem.eventTimer--;
+        if (EventSystem.eventTimer <= 0) EventSystem.currentEvent = null;
+      }
     }
 
-    // Room rotation
-    roomYaw += (targetYaw - roomYaw) * 0.08;
-    room.rotation.y = roomYaw;
-
-    // Animate character idle if not moving
-    if (!characterMoving && !currentAction) {
-      const idleSway = Math.sin(Date.now() * 0.003) * 0.05;
-      character.children.forEach(child => {
-        if (child.userData?.name === 'leftArm') child.rotation.z = 0.3 + idleSway;
-        if (child.userData?.name === 'rightArm') child.rotation.z = -0.3 - idleSway;
-      });
+    function handleCutscene() {
+      cutsceneTimer--;
+      
+      if (cutscene === 'sleeping') {
+        // Dark overlay
+        fill(0, 0, 30, 200);
+        rect(0, 0, width, height);
+        fill(255);
+        textSize(24);
+        textAlign(CENTER);
+        text('😴 Sleeping...', width/2, height/2);
+        textSize(14);
+        text('Z'.repeat(Math.floor((180 - cutsceneTimer) / 20)), width/2, height/2 + 40);
+        
+        if (cutsceneTimer <= 0) {
+          cutscene = null;
+          character.sleeping = false;
+          day++;
+          dayTimer = 0;
+          timeOfDay = 0.15;
+          isNighttime = false;
+          needs.energy = 100;
+          message = `☀️ Day ${day} - A new day begins!`;
+          messageTimer = 240;
+        }
+      } else if (cutscene === 'upgrade') {
+        fill(0, 0, 0, 150);
+        rect(0, 0, width, height);
+        fill(255, 215, 0);
+        textSize(28);
+        textAlign(CENTER);
+        text('✨ Room Upgraded! ✨', width/2, height/2);
+        textSize(16);
+        text(`Level ${room.upgradeLevel}`, width/2, height/2 + 40);
+        
+        if (cutsceneTimer <= 0) {
+          cutscene = null;
+        }
+      }
     }
 
-    renderer.render(scene, camera);
-    updateUI();
-  }
+    function updateNeeds() {
+      if (character.sleeping) return;
+      
+      needs.hunger = max(0, needs.hunger - NEED_DECAY);
+      needs.energy = max(0, needs.energy - NEED_DECAY * 1.2);
+      needs.fun = max(0, needs.fun - NEED_DECAY * 0.8);
+      
+      // Low needs warnings
+      if (needs.hunger < 15 && frameCount % 120 === 0) {
+        message = '⚠️ You\'re very hungry! Eat something.';
+        messageTimer = 120;
+      }
+      if (needs.energy < 15 && frameCount % 120 === 0) {
+        message = '⚠️ You\'re exhausted! Get some sleep.';
+        messageTimer = 120;
+      }
+    }
 
-  updateUI();
-  animate();
-</script>
+    function updateCharacter() {
+      // Movement
+      if (character.moving) {
+        let dx = character.targetX - character.x;
+        let dy = character.targetY - character.y;
+        let dist = sqrt(dx*dx + dy*dy);
+        
+        if (dist < 3) {
+          character.x = character.targetX;
+          character.y = character.targetY;
+          character.moving = false;
+          character.action = character.actionObj;
+          character.actionTimer = character.actionDuration;
+          showProgress = true;
+          actionProgress = 0;
+          
+          if (character.actionObj.x > character.x) character.facingRight = true;
+          else character.facingRight = false;
+          
+          AudioSystem.actionStart();
+        } else {
+          let speed = 3;
+          character.x += (dx / dist) * speed;
+          character.y += (dy / dist) * speed;
+          character.facingRight = dx > 0;
+          character.walkCycle += 0.3;
+          
+          if (Math.floor(character.walkCycle) % 8 === 0) {
+            AudioSystem.footstep();
+          }
+        }
+      }
+      
+      // Action timer
+      if (character.action) {
+        character.actionTimer--;
+        actionProgress = 1 - (character.actionTimer / character.actionDuration);
+        
+        if (character.actionTimer <= 0) {
+          performAction();
+          character.action = null;
+          character.actionObj = null;
+          showProgress = false;
+          actionProgress = 0;
+          character.walkCycle = 0;
+        }
+      }
+      
+      // Idle animations
+      if (!character.moving && !character.action) {
+        character.idleTimer++;
+        if (character.idleTimer > 120) {
+          character.idleTimer = 0;
+        }
+        
+        // Blinking
+        character.blinkTimer++;
+        if (character.blinkTimer > 40) {
+          character.isBlinking = true;
+          if (character.blinkTimer > 45) {
+            character.isBlinking = false;
+            character.blinkTimer = 0;
+          }
+        }
+      }
+    }
+
+    // =============================================
+    // SECTION 12: DRAWING FUNCTIONS
+    // =============================================
+    function drawRoom() {
+      // Floor
+      fill(room.floorColor);
+      noStroke();
+      rect(0, 420, width, height - 420);
+      
+      // Floor shine (based on room level)
+      if (room.upgradeLevel >= 2) {
+        fill(255, 255, 255, 30);
+        rect(200, 430, 600, 5);
+      }
+      
+      // Wall
+      fill(room.wallColor);
+      rect(0, 0, width, 420);
+      
+      // Wallpaper pattern for higher levels
+      if (room.upgradeLevel >= 3) {
+        fill(255, 255, 255, 15);
+        for (let x = 0; x < width; x += 40) {
+          for (let y = 0; y < 400; y += 40) {
+            ellipse(x + 20, y + 20, 8, 8);
+          }
+        }
+      }
+      
+      // Baseboard
+      fill(200, 180, 160);
+      rect(0, 410, width, 15);
+      
+      // Window with day/night cycle
+      let windowX = 700, windowY = 80;
+      drawWindow(windowX, windowY);
+      
+      // Decorations based on upgrade level
+      if (room.upgradeLevel >= 1) {
+        // Plant
+        fill(80, 150, 80);
+        ellipse(900, 380, 40, 50);
+        fill(100, 70, 50);
+        rect(895, 400, 10, 30);
+        // Flower pot detail
+        fill(120, 80, 60);
+        rect(892, 395, 16, 8, 3);
+      }
+      
+      if (room.upgradeLevel >= 2) {
+        // Picture frame
+        fill(120, 80, 60);
+        rect(450, 100, 80, 60, 5);
+        fill(200, 180, 140);
+        rect(455, 105, 70, 50);
+        fill(100, 180, 100);
+        rect(455, 130, 70, 25);
+        fill(220, 200, 100);
+        ellipse(490, 120, 20, 20);
+        // Frame detail
+        fill(140, 90, 70);
+        rect(448, 98, 84, 4, 2);
+      }
+      
+      if (room.upgradeLevel >= 3) {
+        // Wall bookshelf
+        fill(120, 90, 60);
+        rect(50, 100, 80, 15);
+        rect(50, 130, 80, 15);
+        rect(50, 160, 80, 15);
+        fill(180, 150, 120);
+        for (let i = 0; i < 5; i++) {
+          fill(200, 50, 50); rect(55 + i*15, 90, 8, 12);
+          fill(50, 50, 200); rect(55 + i*15 + 3, 120, 8, 10);
+        }
+      }
+      
+      if (room.upgradeLevel >= 4) {
+        // Ceiling light
+        fill(255, 240, 200);
+        ellipse(width/2, 15, 60, 10);
+        fill(255, 255, 230, 100);
+        ellipse(width/2, 15, 100, 20);
+        // Trophy on shelf
+        fill(255, 215, 0);
+        rect(850, 80, 20, 30, 3);
+        ellipse(860, 78, 15, 15);
+        fill(255, 240, 100);
+        ellipse(860, 78, 8, 8);
+      }
+      
+      // Clock on wall
+      drawClock(120, 80);
+      
+      // Calendar
+      drawCalendar(300, 80);
+      
+      // Rug
+      fill(180, 150, 130, 150);
+      ellipse(500, 430, 200, 40);
+    }
+
+    function drawWindow(x, y) {
+      // Frame
+      fill(180, 210, 240);
+      rect(x, y, 120, 150, 10);
+      
+      // Glass color based on time of day
+      if (isNighttime) {
+        fill(20, 30, 60);
+      } else {
+        fill(150, 200, 240);
+      }
+      rect(x + 5, y + 5, 110, 140);
+      
+      // Stars at night
+      if (isNighttime) {
+        fill(255, 255, 200);
+        for (let i = 0; i < 8; i++) {
+          ellipse(x + 20 + i*12, y + 20 + (i%3)*30, 2, 2);
+        }
+        fill(255, 255, 200, 150);
+        ellipse(x + 70, y + 40, 25, 25); // moon
+      } else {
+        // Sun or clouds
+        fill(255, 240, 150);
+        ellipse(x + 80, y + 40, 30, 30);
+        fill(255, 255, 255, 180);
+        ellipse(x + 30, y + 60, 40, 15);
+        ellipse(x + 70, y + 80, 50, 18);
+      }
+      
+      // Curtains
+      fill(200, 150, 120);
+      rect(x - 10, y - 10, 20, 160, 5);
+      rect(x + 110, y - 10, 20, 160, 5);
+      
+      // Curtain rod
+      fill(150, 100, 70);
+      rect(x - 15, y - 5, 150, 6, 3);
+    }
+
+    function drawClock(x, y) {
+      fill(255);
+      ellipse(x, y, 45, 45);
+      fill(240);
+      ellipse(x, y, 38, 38);
+      
+      // Clock hands
+      stroke(50);
+      strokeWeight(2);
+      let hourAngle = map(timeOfDay * 24 % 12, 0, 12, 0, TWO_PI) - HALF_PI;
+      let minAngle = map((timeOfDay * 24 * 60) % 60, 0, 60, 0, TWO_PI) - HALF_PI;
+      line(x, y, x + cos(hourAngle) * 10, y + sin(hourAngle) * 10);
+      strokeWeight(1);
+      line(x, y, x + cos(minAngle) * 15, y + sin(minAngle) * 15);
+      noStroke();
+      
+      fill(0);
+      ellipse(x, y, 3, 3);
+    }
+
+    function drawCalendar(x, y) {
+      fill(255);
+      rect(x, y, 50, 45, 3);
+      fill(200, 50, 50);
+      rect(x, y, 50, 12, 3);
+      fill(255);
+      textSize(8);
+      textAlign(CENTER);
+      text('DAY', x + 25, y + 9);
+      fill(0);
+      textSize(18);
+      text(day, x + 25, y + 35);
+    }
+
+    function drawObject(obj) {
+      push();
+      translate(obj.x, obj.y);
+      
+      // Highlight on hover
+      if (mouseX > obj.x && mouseX < obj.x + obj.w &&
+          mouseY > obj.y && mouseY < obj.y + obj.h) {
+        fill(255, 255, 200, 60);
+        rect(-2, -2, obj.w + 4, obj.h + 4, 7);
+        // Glow effect
+        fill(255, 255, 200, 30);
+        rect(-5, -5, obj.w + 10, obj.h + 10, 10);
+      }
+      
+      // Object-specific drawing
+      drawObjectSpecific(obj);
+      
+      // Label below
+      fill(50);
+      textSize(10);
+      textAlign(CENTER);
+      text(obj.name, obj.w/2, obj.h + 12);
+      
+      pop();
+    }
+
+    function drawObjectSpecific(obj) {
+      if (obj.name === 'Bookshelf') {
+        fill(139, 90, 43);
+        rect(0, 0, obj.w, obj.h, 4);
+        fill(160, 120, 80);
+        rect(5, 10, 50, 15);
+        rect(5, 35, 50, 15);
+        rect(5, 60, 50, 15);
+        // Books with varied colors
+        const bookColors = [[200,50,50], [50,50,200], [50,150,50], [200,150,50], [150,50,150]];
+        for (let row = 0; row < 3; row++) {
+          for (let b = 0; b < 4; b++) {
+            const bc = bookColors[(row + b) % bookColors.length];
+            fill(bc[0], bc[1], bc[2]);
+            rect(8 + b*12, 12 + row*25, 8, 12);
+          }
+        }
+      } else if (obj.name === 'Computer Desk') {
+        fill(80, 80, 100);
+        rect(0, 20, obj.w, 30, 4);
+        fill(60, 60, 80);
+        rect(5, 0, 10, 20);
+        rect(55, 0, 10, 20);
+        // Monitor with screen glow
+        fill(40, 40, 50);
+        rect(15, -10, 35, 25, 3);
+        if (character.action && character.actionObj === obj) {
+          fill(100, 200, 255, 220);
+        } else {
+          fill(100, 200, 255, 100);
+        }
+        rect(18, -7, 29, 19);
+        // Keyboard
+        fill(30);
+        rect(25, 25, 20, 8);
+      } else if (obj.name === 'Easel') {
+        fill(200, 150, 100);
+        triangle(0, 80, 25, 0, 50, 80);
+        rect(20, 80, 10, 5);
+        // Canvas with art
+        fill(240);
+        rect(15, 15, 20, 25);
+        if (character.action && character.actionObj === obj) {
+          fill(255, 100, 100);
+        } else {
+          fill(200, 180, 160);
+        }
+        ellipse(25, 25, 10, 10);
+        fill(100, 180, 100);
+        rect(17, 18, 6, 15);
+      } else if (obj.name === 'Yoga Mat') {
+        fill(100, 180, 120);
+        rect(0, 10, obj.w, 10, 5);
+        fill(80, 140, 100);
+        rect(5, 0, obj.w-10, 10, 3);
+      } else if (obj.name === 'Fridge') {
+        fill(220);
+        rect(0, 0, obj.w, obj.h, 5);
+        fill(180);
+        rect(5, 5, 40, 20);
+        rect(5, 30, 40, 20);
+        // Handle
+        fill(150);
+        rect(42, 20, 5, 15, 2);
+      } else if (obj.name === 'Bed') {
+        fill(180, 140, 200);
+        rect(0, 10, obj.w, 30, 8);
+        fill(220, 200, 230);
+        rect(10, 15, 40, 15);
+        rect(60, 15, 30, 15);
+        // Pillow
+        fill(240);
+        rect(5, 12, 20, 10, 3);
+        // Blanket detail
+        fill(200, 180, 210);
+        for (let i = 0; i < 4; i++) {
+          rect(15 + i*20, 20, 15, 3);
+        }
+      } else if (obj.name === 'Radio') {
+        fill(200, 100, 100);
+        rect(0, 5, obj.w, 25, 5);
+        fill(40);
+        rect(5, 10, 30, 15);
+        // Speaker grill
+        fill(30);
+        for (let i = 0; i < 3; i++) {
+          line(8 + i*10, 12, 8 + i*10, 23);
+        }
+        // Sound waves when in use
+        if (character.action && character.actionObj === obj) {
+          stroke(255, 200, 100, 150);
+          noFill();
+          for (let i = 0; i < 3; i++) {
+            arc(35, 17, 10 + i*8, 10 + i*8, -PI/2, PI/2);
+          }
+          noStroke();
+        }
+      }
+    }
+
+    function drawObjectTooltip(obj) {
+      if (mouseX > obj.x && mouseX < obj.x + obj.w &&
+          mouseY > obj.y && mouseY < obj.y + obj.h) {
+        const tx = mouseX + 15;
+        const ty = mouseY - 30;
+        
+        fill(0, 0, 0, 200);
+        noStroke();
+        const tooltipWidth = 160;
+        const tooltipHeight = 35;
+        rect(tx, ty, tooltipWidth, tooltipHeight, 8);
+        
+        fill(255);
+        textSize(10);
+        textAlign(LEFT);
+        text(`${obj.icon} ${obj.name}`, tx + 8, ty + 14);
+        textSize(9);
+        fill(200);
+        text(obj.description, tx + 8, ty + 28);
+      }
+    }
+
+    function drawCharacter() {
+      push();
+      translate(character.x, character.y);
+      
+      // Shadow
+      fill(0, 30);
+      ellipse(0, 40, 35, 10);
+      
+      if (character.sleeping) {
+        drawSleepingCharacter();
+        pop();
+        return;
+      }
+      
+      // Body color based on action
+      let bodyColor = color(100, 150, 220);
+      if (character.action && character.actionObj) {
+        if (character.actionObj.skill === 'education') bodyColor = color(120, 140, 200);
+        else if (character.actionObj.skill === 'tech') bodyColor = color(100, 180, 200);
+        else if (character.actionObj.skill === 'creativity') bodyColor = color(220, 130, 160);
+        else if (character.actionObj.skill === 'wellness') bodyColor = color(100, 200, 150);
+      }
+      
+      // Walking bounce
+      let bounceY = 0;
+      if (character.moving) {
+        bounceY = sin(character.walkCycle * 1.5) * 3;
+        translate(0, bounceY);
+      } else if (!character.action) {
+        // Idle sway
+        bounceY = sin(character.idleTimer * 0.05) * 1;
+        translate(0, bounceY);
+      }
+      
+      // Legs
+      stroke(180, 150, 120);
+      strokeWeight(5);
+      if (character.moving) {
+        let legSwing = sin(character.walkCycle * 1.5) * 12;
+        line(-8, 30, -12 + legSwing, 10);
+        line(8, 30, 12 - legSwing, 10);
+      } else if (character.action) {
+        // Standing with slight bend
+        line(-8, 30, -9, 10);
+        line(8, 30, 9, 10);
+      } else {
+        line(-8, 30, -10, 10);
+        line(8, 30, 10, 10);
+      }
+      
+      // Body
+      noStroke();
+      fill(bodyColor);
+      ellipse(0, 0, 24, 30);
+      
+      // Arms
+      stroke(180, 150, 120);
+      strokeWeight(4);
+      if (character.moving) {
+        let armSwing = sin(character.walkCycle * 1.5) * 8;
+        line(-10, -5, -18 + armSwing, 10);
+        line(10, -5, 18 - armSwing, 10);
+      } else if (character.action) {
+        // Reach towards object
+        line(-10, -5, -22, -12);
+        line(10, -5, 22, -12);
+      } else {
+        line(-10, -5, -18, 10);
+        line(10, -5, 18, 10);
+      }
+      noStroke();
+      
+      // Head
+      fill(255, 210, 170);
+      ellipse(0, -28, 24, 26);
+      
+      // Hair
+      fill(60, 40, 20);
+      arc(0, -35, 26, 14, PI, TWO_PI);
+      
+      // Eyes (with blinking)
+      if (character.isBlinking) {
+        stroke(30);
+        strokeWeight(1.5);
+        line(-9, -30, -3, -30);
+        line(3, -30, 9, -30);
+        noStroke();
+      } else {
+        fill(30);
+        ellipse(-6, -30, 4, 5);
+        ellipse(6, -30, 4, 5);
+        fill(255);
+        ellipse(-5, -31, 2, 2);
+        ellipse(7, -31, 2, 2);
+      }
+      
+      // Mouth
+      noFill();
+      stroke(180, 100, 80);
+      strokeWeight(1.5);
+      arc(0, -22, 8, 4, 0, PI);
+      noStroke();
+      
+      pop();
+    }
+
+    function drawSleepingCharacter() {
+      // Lying down simplified
+      fill(100, 150, 220);
+      ellipse(0, 35, 40, 18);
+      fill(255, 210, 170);
+      ellipse(20, 30, 20, 22);
+      fill(60, 40, 20);
+      arc(20, 24, 22, 12, PI, TWO_PI);
+      // Z's
+      fill(255, 200);
+      textSize(12);
+      text('Z', 30, 15);
+      textSize(16);
+      text('Z', 40, 0);
+      textSize(20);
+      text('Z', 50, -18);
+    }
+
+    function drawCharacterAccessories() {
+      push();
+      translate(character.x, character.y);
+      
+      // Glasses for high education
+      if (skills.education >= 8) {
+        noFill();
+        stroke(40);
+        strokeWeight(1.5);
+        ellipse(-7, -30, 8, 7);
+        ellipse(7, -30, 8, 7);
+        line(-3, -30, 3, -30);
+        noStroke();
+      }
+      
+      // Headphones for high tech
+      if (skills.tech >= 8) {
+        fill(40);
+        ellipse(-14, -28, 6, 10);
+        ellipse(14, -28, 6, 10);
+        noFill();
+        stroke(40);
+        strokeWeight(2);
+        arc(0, -18, 28, 22, PI + 0.5, TWO_PI - 0.5);
+        noStroke();
+      }
+      
+      // Beret for high creativity
+      if (skills.creativity >= 8) {
+        fill(180, 50, 80);
+        ellipse(0, -38, 30, 10);
+        ellipse(5, -42, 8, 6);
+      }
+      
+      pop();
+    }
+
+    function drawProgressBar() {
+      if (!character.actionObj) return;
+      let obj = character.actionObj;
+      let px = obj.x + obj.w/2 - 40;
+      let py = obj.y - 25;
+      
+      fill(0, 150);
+      rect(px, py, 80, 12, 6);
+      
+      // Gradient progress
+      const progressColor = lerpColor(color(255, 200, 0), color(100, 255, 100), actionProgress);
+      fill(progressColor);
+      rect(px, py, 80 * actionProgress, 12, 6);
+      
+      fill(255);
+      textSize(10);
+      textAlign(CENTER);
+      text(obj.action, px + 40, py - 5);
+    }
+
+    // =============================================
+    // SECTION 13: UI DRAWING
+    // =============================================
+    function drawUI() {
+      // Journal button
+      fill(0, 0, 0, 160);
+      noStroke();
+      rect(width - 60, 5, 50, 30, 8);
+      fill(255);
+      textSize(16);
+      textAlign(CENTER);
+      text('📖', width - 35, 26);
+      
+      // Sound toggle
+      rect(width - 115, 5, 50, 30, 8);
+      text(AudioSystem.enabled ? '🔊' : '🔇', width - 90, 26);
+      
+      // Journal panel
+      if (JournalSystem.showJournal) {
+        fill(0, 0, 0, 220);
+        rect(50, 50, width - 100, height - 100, 20);
+        fill(255);
+        textSize(20);
+        textAlign(CENTER);
+        text('📖 Life Journal', width/2, 80);
+        textSize(11);
+        text('(Click anywhere to close)', width/2, 100);
+        
+        textAlign(LEFT);
+        for (let i = 0; i < Math.min(JournalSystem.entries.length, 8); i++) {
+          const entry = JournalSystem.entries[i];
+          fill(200);
+          textSize(11);
+          text(entry.text, 80, 125 + i * 40);
+          textSize(9);
+          fill(150);
+          text(`Day ${entry.day}`, 80, 140 + i * 40);
+        }
+      }
+      
+      if (JournalSystem.showJournal) return;
+      
+      // Main panel background
+      fill(0, 0, 0, 160);
+      noStroke();
+      rect(10, 10, 220, 280, 15);
+      
+      // Needs
+      fill(255);
+      textSize(14);
+      textAlign(LEFT);
+      text("❤️ NEEDS", 20, 35);
+      
+      drawNeedBar("Hunger", needs.hunger, 20, 50, [76, 175, 80], [244, 67, 54]);
+      drawNeedBar("Energy", needs.energy, 20, 75, [255, 152, 0], [255, 152, 0]);
+      drawNeedBar("Fun", needs.fun, 20, 100, [33, 150, 243], [33, 150, 243]);
+      
+      // Skills
+      fill(255);
+      text("📈 SKILLS", 20, 135);
+      drawSkillBar("Education", skills.education, 20, 150);
+      drawSkillBar("Tech", skills.tech, 20, 170);
+      drawSkillBar("Creativity", skills.creativity, 20, 190);
+      drawSkillBar("Wellness", skills.wellness, 20, 210);
+      
+      // Money & Day
+      fill(255, 215, 0);
+      textSize(13);
+      text(`💰 $${money}`, 20, 240);
+      fill(200);
+      text(`📅 Day ${day}`, 120, 240);
+      
+      // Room level
+      fill(200, 180, 255);
+      textSize(11);
+      text(`🏠 Room Lv.${room.upgradeLevel}`, 20, 260);
+      
+      // Achievement count
+      fill(255, 215, 0);
+      text(`🏆 ${AchievementSystem.getUnlockedCount()}/${AchievementSystem.getTotalCount()}`, 130, 260);
+      
+      // Goal display
+      if (GoalSystem.activeGoal && !GoalSystem.completed) {
+        fill(0, 0, 0, 180);
+        rect(width - 250, 5, 240, 40, 10);
+        fill(255);
+        textSize(11);
+        textAlign(RIGHT);
+        text(`🎯 Goal: ${GoalSystem.activeGoal.text}`, width - 20, 25);
+        text(`Progress: ${GoalSystem.activeGoal.progress}/${GoalSystem.activeGoal.count}`, width - 20, 40);
+      }
+      
+      // Message at bottom center
+      if (messageTimer > 0) {
+        fill(0, 0, 0, 180);
+        rect(width/2 - 220, height - 60, 440, 40, 20);
+        fill(255, 255, 200);
+        textSize(14);
+        textAlign(CENTER);
+        text(message, width/2, height - 35);
+      }
+      
+      // Achievement popup
+      if (AchievementSystem.recentTimer > 0) {
+        const ach = AchievementSystem.recentlyUnlocked;
+        AchievementSystem.recentTimer--;
+        const alpha = AchievementSystem.recentTimer > 150 ? 255 : map(AchievementSystem.recentTimer, 150, 0, 255, 0);
+        fill(0, 0, 0, alpha);
+        rect(width/2 - 150, height/2 - 50, 300, 60, 15);
+        fill(255, 215, 0, alpha);
+        textSize(16);
+        textAlign(CENTER);
+        text('🏆 Achievement Unlocked!', width/2, height/2 - 25);
+        textSize(13);
+        fill(255, alpha);
+        text(ach.name + ' - ' + ach.desc, width/2, height/2 + 5);
+      }
+      
+      // Event notification
+      if (EventSystem.currentEvent && EventSystem.eventTimer > 0) {
+        const alpha = map(EventSystem.eventTimer, 180, 0, 255, 0);
+        const evt = EventSystem.currentEvent;
+        const evtColor = evt.type === 'good' ? [100, 255, 100] : evt.type === 'bad' ? [255, 100, 100] : [200, 200, 200];
+        fill(0, 0, 0, alpha * 0.8);
+        rect(width/2 - 180, 60, 360, 45, 12);
+        fill(evtColor[0], evtColor[1], evtColor[2], alpha);
+        textSize(13);
+        textAlign(CENTER);
+        text(evt.text, width/2, 88);
+      }
+      
+      // Title
+      fill(255, 255, 200, 200);
+      textSize(18);
+      textAlign(RIGHT);
+      text("✨ My Future Room", width - 20, height - 85);
+      textSize(11);
+      text("Design Your Future", width - 20, height - 68);
+    }
+
+    function drawNeedBar(label, value, x, y, colorGood, colorBad) {
+      fill(200);
+      textSize(11);
+      textAlign(LEFT);
+      text(label, x, y);
+      
+      // Background
+      fill(100);
+      rect(x + 50, y - 8, 80, 10, 4);
+      
+      // Pulsing when low
+      let col = value > 50 ? colorGood : colorBad;
+      if (value < 20) {
+        const pulse = sin(frameCount * 0.1) * 0.3 + 0.7;
+        fill(col[0] * pulse, col[1] * pulse, col[2] * pulse);
+      } else {
+        fill(col[0], col[1], col[2]);
+      }
+      rect(x + 50, y - 8, 80 * (value/100), 10, 4);
+      
+      // Glow on very low
+      if (value < 15) {
+        fill(255, 100, 100, 50 + sin(frameCount * 0.2) * 30);
+        rect(x + 50, y - 8, 80, 10, 4);
+      }
+    }
+
+    function drawSkillBar(label, value, x, y) {
+      fill(200);
+      textSize(11);
+      textAlign(LEFT);
+      text(label, x, y);
+      fill(100);
+      rect(x + 70, y - 8, 80, 10, 4);
+      
+      // Skill color based on type
+      let col;
+      if (label === 'Education') col = [100, 180, 255];
+      else if (label === 'Tech') col = [100, 200, 200];
+      else if (label === 'Creativity') col = [255, 150, 200];
+      else col = [100, 220, 150];
+      
+      fill(col[0], col[1], col[2]);
+      rect(x + 70, y - 8, 80 * (value/100), 10, 4);
+    }
+
+    // Prevent default right-click
+    document.addEventListener('contextmenu', event => event.preventDefault());
+  </script>
 </body>
 </html>
